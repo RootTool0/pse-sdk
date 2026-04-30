@@ -10,78 +10,175 @@
 #include "CoreTypes.h"
 #include "Types.h"
 
-#define BUFFER_SIZE 2048
+#define PSE_BUFFER_SIZE 2048
 
-struct FBuffer
+struct PseBuffer
 {
 
 public:
-    template<typename T>
-    uint32_t Push(const T& Value)
+    void synchronize() const
     {
-        static_assert(sizeof(T) == 64, "Structure must be exactly 64 bytes!");
-
+        uint32_t pse = PseIndex.load(std::memory_order_relaxed);
         while (true)
         {
-            uint32_t Pse = PseIndex.load(std::memory_order_relaxed);
-            uint32_t Game = GameIndex.load(std::memory_order_acquire);
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
+            if((int32_t)(game - pse) >= 0) break;
+            _mm_pause();
+        }
+    }
+    
+    /* */ PseData& operator[](uint32_t absoluteIndex) /* */ { return (/* */ PseData&)Buffer[absoluteIndex & (PSE_BUFFER_SIZE - 1)]; }
+    const PseData& operator[](uint32_t absoluteIndex) const { return (const PseData&)Buffer[absoluteIndex & (PSE_BUFFER_SIZE - 1)]; }
+    
+#pragma region Immediate Access (One-by-one)
+    uint32_t push(const PseData& data)
+    {
+        while (true)
+        {
+            uint32_t pse = PseIndex.load(std::memory_order_relaxed);
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
 
-            if (Pse - Game < BUFFER_SIZE)
+            if(pse - game < PSE_BUFFER_SIZE)
             {
-                std::memcpy(&Buffer[Pse & (BUFFER_SIZE - 1)], &Value, 64);
-                PseIndex.store(Pse + 1, std::memory_order_release);
-                return Pse;
+                (*this)[pse] = data;
+                PseIndex.store(pse + 1, std::memory_order_release);
+                return pse;
             }
             _mm_pause();
         }
     }
     
-    template<typename T>
-    T Wait(uint32_t SlotIndex)
+    PseData wait(uint32_t index) const
     {
-        static_assert(sizeof(T) == 64, "Structure must be exactly 64 bytes!");
-
         while (true)
         {
-            uint32_t Game = GameIndex.load(std::memory_order_acquire);
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
 
-            if ((int32_t)(Game - SlotIndex) > 0)
+            if((int32_t)(game - index) > 0)
             {
-                T Result;
-                std::memcpy(&Result, &Buffer[SlotIndex & (BUFFER_SIZE - 1)], 64);
-                return Result;
+                return (*this)[index];
             }
             _mm_pause();
         }
     }
     
-    template<typename T>
-    T PushAndWait(const T& Value)
-    {
-        static_assert(sizeof(T) == 64, "Structure must be exactly 64 bytes!");
-        return Wait<T>(Push<T>(Value));
-    }
+    PseData pushAndWait(const PseData& data) { return wait(push(data)); }
+#pragma endregion
     
-    void Synchronize() const
+#pragma region Batch Access (Copying)
+    uint32_t pushBatch(const PseData* pData, uint32_t count)
     {
-        uint32_t Pse = PseIndex.load(std::memory_order_relaxed);
-        while (true)
+        static_assert(sizeof(PseData) == 64, "Structure must be exactly 64 bytes!");
+        if(count == 0) return 0;
+
+        while(true)
         {
-            uint32_t Game = GameIndex.load(std::memory_order_acquire);
-            if ((int32_t)(Game - Pse) >= 0) break;
+            uint32_t pse = PseIndex.load(std::memory_order_relaxed);
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
+            
+            if(pse - game + count <= PSE_BUFFER_SIZE)
+            {
+                this->rawCopy((void*)pData, pse, count, true);
+                PseIndex.store(pse + count, std::memory_order_release);
+                return pse;
+            }
             _mm_pause();
         }
     }
     
+    void waitBatch(uint32_t index, PseData* pData, uint32_t count)
+    {
+        static_assert(sizeof(PseData) == 64, "Structure must be exactly 64 bytes!");
+        if(count == 0) return;
+
+        while(true)
+        {
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
+            if((int32_t)(game - (index + count)) >= 0)
+            {
+                this->rawCopy(pData, index, count, false);
+                return;
+            }
+            _mm_pause();
+        }
+    }
+    
+    void pushAndWaitBatch(PseData* pData, uint32_t count)
+    {
+        static_assert(sizeof(PseData) == 64, "Structure must be exactly 64 bytes!");
+        waitBatch(pushBatch(pData, count), pData, count);
+    }
+#pragma endregion
+
+#pragma region In-Place Access (Zero-Copy)
+    uint32_t reserveRaw(uint32_t count) const
+    {
+        while(true)
+        {
+            uint32_t pse = PseIndex.load(std::memory_order_relaxed);
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
+            if(pse - game + count <= PSE_BUFFER_SIZE) return pse;
+            _mm_pause();
+        }
+    }
+    
+    void commitRaw(uint32_t startIndex, uint32_t count) { PseIndex.store(startIndex + count, std::memory_order_release); }
+    
+    void waitRaw(uint32_t index, uint32_t count) const
+    {
+        if(count == 0) return;
+        
+        while(true)
+        {
+            uint32_t game = GameIndex.load(std::memory_order_acquire);
+            if((int32_t)(game - (index + count)) >= 0) return;
+            _mm_pause();
+        }
+    }
+#pragma endregion
+
 private:
-    struct alignas(64) FEmptySlot{};
-    alignas(64) FEmptySlot Buffer[BUFFER_SIZE];
+    alignas(64) PseData Buffer[PSE_BUFFER_SIZE] = {};
     alignas(64) std::atomic<uint32_t> PseIndex{0}; // (Writer/Producer)
     alignas(64) std::atomic<uint32_t> GameIndex{0}; // (Reader/Consumer)
+    
+    void rawCopy(void* pExternalData, uint32_t absoluteIndex, uint32_t count, bool bToBuffer)
+    {
+        uint32_t spaceAtEnd = PSE_BUFFER_SIZE - (absoluteIndex & (PSE_BUFFER_SIZE - 1));
+        void* pInternalStart = &(*this)[absoluteIndex]; 
+        
+        if(count <= spaceAtEnd)
+        {
+            std::memcpy
+            (
+                bToBuffer ? pInternalStart : pExternalData,
+                bToBuffer ? pExternalData : pInternalStart,
+                count * 64
+            );
+        }
+        else
+        {
+            uint32_t BytesAtEnd = spaceAtEnd * 64;
+            
+            std::memcpy
+            (
+                bToBuffer ? pInternalStart : pExternalData,
+                bToBuffer ? pExternalData : pInternalStart,
+                BytesAtEnd
+            );
+            
+            std::memcpy
+            (
+                bToBuffer ? (uint8_t*)&Buffer[0] : (uint8_t*)pExternalData + BytesAtEnd,
+                bToBuffer ? (uint8_t*)pExternalData + BytesAtEnd : (uint8_t*)&Buffer[0],
+                (count - spaceAtEnd) * 64
+            );
+        }
+    }
 };
 
-static FBuffer* GBuffer = nullptr;
-static uint8_t IDs[8][8];
+static PseBuffer* gPseBuffer = nullptr;
+static PseID IDs[64];
 
 int main()
 {
@@ -92,7 +189,7 @@ int main()
         return -1;
     }
     
-    void* pBuf = MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(FBuffer));
+    void* pBuf = MapViewOfFile(hMapFile, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(PseBuffer));
     if (pBuf == nullptr)
     {
         std::cout << "Could not map view of file: " << GetLastError() << '\n';
@@ -100,44 +197,83 @@ int main()
         return -2;
     }
     
-    GBuffer = static_cast<FBuffer*>(pBuf);
-    
-    for (int x = 0; x < 8; ++x)
-        for (int y = 0; y < 8; ++y)
-        {
-            PseData Data = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_CREATE);
-            Data.Set<0, PseMesh>(PSE_MESH_FACE);
-            Data.Set<4, PseMaterial>(PSE_MATERIAL_FLOOR_BLACK);
-            Data.Set<8, PseTransform>(PseTransform
-            (
-                PseVector(x * 200.0f, y * 200.0f, 0),
-                PseQuat  (0, 0, 0, 1),
-                PseVector(1.0f)
-            ));
-        
-            IDs[x][y] = GBuffer->PushAndWait<PseData>(Data).Get<0, PseID>();
-        }
-    
     std::random_device rd;
-    std::mt19937 gen(rd());
-    std::bernoulli_distribution d(0.5);
+    std::mt19937 Generator(rd());
+    std::bernoulli_distribution Random(0.5);
+    
+    gPseBuffer = static_cast<PseBuffer*>(pBuf);
+    
+    /*
+    for(uint8_t i = 0; i < 64; ++i)
+    {
+        PseData Data = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_CREATE)
+            .Set<0, PseMesh>(PSE_MESH_FACE)
+            .Set<4, PseMaterial>(PSE_MATERIAL_FLOOR_BLACK)
+            .Set<8, PseTransform>(PseTransform(PseVector((i % 8) * 200.0f, (i / 8) * 200.0f, 0)));
+        
+        IDs[i] = gBuffer->PushAndWait<PseData>(Data).Get<0, PseID>();
+    }
+    */
+    
+    /*
+    PseData TempDataArray[64];
+    for(uint8_t i = 0; i < 64; ++i)
+    {
+        TempDataArray[i] = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_CREATE)
+            .Set<0, PseMesh>(PSE_MESH_FACE)
+            .Set<4, PseMaterial>(PSE_MATERIAL_FLOOR_BLACK)
+            .Set<8, PseTransform>(PseTransform(PseVector((i % 8) * 200.0f, (i / 8) * 200.0f, 0)));
+    }
+    
+    gBuffer->PushAndWaitArray(TempDataArray, 64);
+    
+    for(int i = 0; i < 64; ++i)
+        IDs[i] = TempDataArray[i].Get<0, PseID>();
+    */
+
+    {
+        uint32_t startIndex = gPseBuffer->reserveRaw(64);
+        for(uint8_t i = 0; i < 64; ++i)
+        {
+            gPseBuffer->operator[](startIndex + i) = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_CREATE)
+                .Set<0, PseMesh>(PSE_MESH_FACE)
+                .Set<4, PseMaterial>(PSE_MATERIAL_FLOOR_BLACK)
+                .Set<8, PseTransform>(PseTransform(PseVector((i % 8) * 200.0f, (i / 8) * 200.0f, 0)));
+        }
+        gPseBuffer->commitRaw(startIndex, 64);
+    
+        gPseBuffer->waitRaw(startIndex, 64);
+        for(int i = 0; i < 64; ++i)
+            IDs[i] = gPseBuffer->operator[](startIndex + i).Get<0, PseID>();
+    }
     
     while(true)
     {
-        // GBuffer->Synchronize();
         
-        for (int x = 0; x < 8; ++x)
-            for (int y = 0; y < 8; ++y)
-                GBuffer->Push<PseData>(
-                    PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_SET_MATERIAL)
-                        .Set<0, PseID>(IDs[x][y])
-                        .Set<8, PseMaterial>(d(gen) ? PSE_MATERIAL_FLOOR_WHITE : PSE_MATERIAL_FLOOR_BLACK)
-                );
+        /*
+        for(uint8_t ID : IDs)
+        {
+            PseData Data = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_SET_MATERIAL)
+                .Set<0, PseID>(IDs[ID])
+                .Set<8, PseMaterial>(Random(Generator) ? PSE_MATERIAL_FLOOR_WHITE : PSE_MATERIAL_FLOOR_BLACK);
+            
+            gPseBuffer->push(Data);
+        }
+        */
+        
+        uint32_t startIndex = gPseBuffer->reserveRaw(64);
+        for(uint8_t i = 0; i < 64; ++i)
+        {
+            gPseBuffer->operator[](startIndex + i) = PseData::CreateCommand(PSE_COMMAND_DYNAMIC_MESH_SET_MATERIAL)
+                .Set<0, PseID>(IDs[i])
+                .Set<8, PseMaterial>(Random(Generator) ? PSE_MATERIAL_FLOOR_WHITE : PSE_MATERIAL_FLOOR_BLACK);
+        }
+        gPseBuffer->commitRaw(startIndex, 64);
         
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
     
-    if(GBuffer) UnmapViewOfFile(GBuffer);
+    if(gPseBuffer) UnmapViewOfFile(gPseBuffer);
     if(hMapFile) CloseHandle(hMapFile);
     
     return 0;
