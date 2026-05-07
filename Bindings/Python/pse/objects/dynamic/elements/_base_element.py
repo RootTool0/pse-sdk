@@ -11,6 +11,8 @@ class BaseElement:
     def _get_class(self) -> Element: return Element.NONE
 
     def create(self, quat=(0, 0, 0, 0), location=(0, 0, 0), scale=(1, 1, 1), visibility=True):
+        if self._guid == 0: return
+
         data = BufferData()
         globals.dll.pseBufferDataCreateCommand(byref(data), Command.ELEMENT_CREATE)
         transform = Transform(Quat(*quat), Vector3(*location), Vector3(*scale))

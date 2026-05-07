@@ -1,7 +1,7 @@
 import pse # Portal Solver Editor (PSE)
 
 # Инициализируем PSE (yeah, dynamic library yo)
-pse.initialize("../Dist/bin/PSE.dll")
+pse.initialize("../../Dist/bin/PSE.dll")
 
 # Генерация процедурного окружения:
 # Создаем шахматное поле 10x10 из динамических мешей
@@ -32,6 +32,7 @@ button.create(location=(0, 0, 0))
 @button.on_element_changed()
 def my_super_cool_function_you_have_ever_seen(val):
     door.set_state(val)
+    print(f"New val: {val}")
 
 # Главный цикл обработки событий
 # Метод poll_events опрашивает очередь событий вызывает нужные калбеки

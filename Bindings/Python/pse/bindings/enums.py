@@ -23,11 +23,12 @@ class Command(IntEnum):
     ELEMENT_SET_STATE           = 0x04000003
     
     TEST                        = 0xffffffff
+    NONE                        = 0xffffffff
 
 class Event(IntEnum):
-    NONE            = 0x00000000
-
     ELEMENT_CHANGED = 0x00000001
+
+    NONE            = 0xffffffff
 
 class Result(IntEnum):
     SUCCESS                        = 0x00000000
@@ -36,6 +37,8 @@ class Result(IntEnum):
     ERROR_ARRAY_INDEX_OUT_OF_RANGE = 0x00000002
     ERROR_ID_NOT_FOUND             = 0x00000003
     ERROR_INVALID_OBJECT_TYPE      = 0x00000004
+
+    NONE                           = 0xffffffff
 
 class Mesh(IntEnum):
     PLANE       = 0x00000000

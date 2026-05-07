@@ -12,6 +12,8 @@ class DynamicMesh:
         return self._guid
 
     def create(self, mesh=Mesh.PLANE, material=Material.WALL_WHITE_SMALL, quat=(0, 0, 0, 0), location=(0, 0, 0), scale=(1, 1, 1)):
+        if self._guid == 0: return
+
         data = BufferData()
         globals.dll.pseBufferDataCreateCommand(byref(data), Command.DYNAMIC_MESH_CREATE)
         globals.dll.pseBufferDataSetInt32(byref(data), 0, mesh)

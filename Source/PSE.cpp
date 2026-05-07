@@ -12,6 +12,11 @@ void pseBufferDataCreateCommand(PseBufferData* pBufferData, PseCommand command) 
 void pseBufferDataCreateResult (PseBufferData* pBufferData, PseResult  result ) { if(pBufferData){ std::memset(pBufferData, 0, sizeof(PseBufferData)); pBufferData->result  = result;  }}
 void pseBufferDataCreateEvent  (PseBufferData* pBufferData, PseEvent   event  ) { if(pBufferData){ std::memset(pBufferData, 0, sizeof(PseBufferData)); pBufferData->event   = event;   }}
 
+// PseBufferData / Read
+PseCommand pseBufferDataReadCommand(const PseBufferData* pBufferData) { return pBufferData ? pBufferData->command : PSE_COMMAND_NONE; }
+PseResult  pseBufferDataReadResult (const PseBufferData* pBufferData) { return pBufferData ? pBufferData->result  : PSE_RESULT_NONE;  }
+PseEvent   pseBufferDataReadEvent  (const PseBufferData* pBufferData) { return pBufferData ? pBufferData->event   : PSE_EVENT_NONE;   }
+
 // PseBufferData / Setters
 void pseBufferDataSetInt8 (PseBufferData* pBufferData, int32_t offset, int8_t  value) { if(pBufferData) pBufferData->Set<int8_t >(offset, value); }
 void pseBufferDataSetInt16(PseBufferData* pBufferData, int32_t offset, int16_t value) { if(pBufferData) pBufferData->Set<int16_t>(offset, value); }

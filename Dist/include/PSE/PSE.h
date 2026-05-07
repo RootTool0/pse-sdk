@@ -32,6 +32,11 @@ extern "C"
     PSE_API void pseBufferDataCreateResult (PseBufferData* pBufferData, PseResult  result );
     PSE_API void pseBufferDataCreateEvent  (PseBufferData* pBufferData, PseEvent   event  );
     
+    // PseBufferData / Read
+    PSE_API PseCommand pseBufferDataReadCommand(const PseBufferData* pBufferData);
+    PSE_API PseResult  pseBufferDataReadResult (const PseBufferData* pBufferData);
+    PSE_API PseEvent   pseBufferDataReadEvent  (const PseBufferData* pBufferData);
+    
     // PseBufferData / Setters
     PSE_API void pseBufferDataSetInt8 (PseBufferData* pBufferData, int32_t offset, int8_t  value);
     PSE_API void pseBufferDataSetInt16(PseBufferData* pBufferData, int32_t offset, int16_t value);
@@ -84,7 +89,7 @@ extern "C"
     
     // Event Buffer / Methods
     PSE_API int32_t pseEventBufferTryGet(PseBufferData* pOutData);
-
+    
 #ifdef __cplusplus
 }
 #endif

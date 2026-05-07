@@ -33,14 +33,15 @@ enum PseCommand : uint32_t
 	PSE_COMMAND_ELEMENT_SET_STATE           = 0x04000003,
 	// TODO
 	
-	PSE_TEST = 0xffffffff
+	PSE_TEST = 0xffffffff,
+	PSE_COMMAND_NONE = 0xffffffff
 };
 
 enum PseEvent : uint32_t
 {
-	PSE_EVENT_NONE            = 0x00000000,
+	PSE_EVENT_ELEMENT_CHANGED = 0x00000001,
 
-	PSE_EVENT_ELEMENT_CHANGED = 0x00000001
+	PSE_EVENT_NONE            = 0xffffffff
 };
 
 enum PseResult : uint32_t
@@ -50,7 +51,9 @@ enum PseResult : uint32_t
 	PSE_RESULT_ERROR_COMMAND_NOT_FOUND        = 0x00000001,
 	PSE_RESULT_ERROR_ARRAY_INDEX_OUT_OF_RANGE = 0x00000002,
 	PSE_RESULT_ERROR_ID_NOT_FOUND             = 0x00000003,
-	PSE_RESULT_ERROR_INVALID_OBJECT_TYPE      = 0x00000004
+	PSE_RESULT_ERROR_INVALID_OBJECT_TYPE      = 0x00000004,
+	
+	PSE_RESULT_NONE                           = 0xffffffff
 };
 
 enum PseMesh : uint32_t

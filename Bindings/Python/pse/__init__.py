@@ -3,10 +3,10 @@ from .bindings import (
     Command, Event, Result, Mesh, Material, Element,
     Vector3, Quat, Transform, Color, BufferData
 )
+from . import globals
 from .objects.dynamic.dynamic_mesh import DynamicMesh
 from .objects.dynamic.elements.button_element import ButtonElement
 from .objects.dynamic.elements.door_element import DoorElement
-from . import globals
 from ctypes import byref
 
 def initialize(dll_path: str = None):
@@ -34,10 +34,10 @@ def poll_events():
     for _ in range(128):
         if globals.dll.pseEventBufferTryGet(byref(data)) == 0: break
 
-        event = globals.dll.pseBufferDataGetInt64(byref(data), 0)
+        event = globals.dll.pseBufferDataReadEvent(byref(data))
         if event == Event.ELEMENT_CHANGED:
             callback_address = globals.dll.pseBufferDataGetInt64(byref(data), 9)
-            if callback_address == 0: continue
-            value = globals.dll.pseBufferDataGetInt8(byref(data), 8)
-            callback = globals.CALLBACK_TYPE(callback_address)
-            callback(value)
+            if callback_address != 0:
+                value = globals.dll.pseBufferDataGetInt8(byref(data), 8)
+                callback = globals.CALLBACK_TYPE(callback_address)
+                callback(value)
