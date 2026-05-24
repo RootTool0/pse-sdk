@@ -34,6 +34,12 @@ def my_super_cool_function_you_have_ever_seen(val):
     door.set_state(val)
     print(f"New val: {val}")
 
+import ctypes
+
+data = pse.BufferData()
+pse.globals.dll.pseBufferDataCreateCommand(ctypes.byref(data), ctypes.c_uint32(0x05062025))
+pse.globals.dll.pseCommandBufferSinglePushAndWait(ctypes.byref(data))
+
 # Главный цикл обработки событий
 # Метод poll_events опрашивает очередь событий вызывает нужные калбеки
 while True:
