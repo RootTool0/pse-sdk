@@ -1,0 +1,10 @@
+<img src="../../../Assets/PortalSolverLogo.png" width="96m" align="left" hspace="15" alt="Portal Solver Logo">
+
+## Portal Solver Editor SDK > Reference > Enums > PseEvent
+
+<br>
+
+| Значение (HEX) | Название                  | Описание                          | Разметка PseBufferData для результата (PseResult)                                |
+|:--------------:|---------------------------|-----------------------------------|----------------------------------------------------------------------------------|
+| **0x00000000** | PSE_EVENT_ELEMENT_CHANGED | Любое изменение элемента на карте | `[0]` **PseGUID** GUID<br>`[8]` **uint64_t** Callback<br>`[16]` **int8_t** State |
+| **0xFFFFFFFF** | PSE_EVENT_NONE            | Служебное пустое состояние        | **-**                                                                            |

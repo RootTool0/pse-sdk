@@ -2,45 +2,46 @@
 
 #include <cstdint>
 
-enum PseCommand : uint32_t
+enum PseCommand : uint32
 {
-	//                                      = 0xGGGСCCCC
+	// Format (G - Group, C - Command)      = 0xGGGСCCCC,
 	PSE_COMMAND_GAME                        = 0x00100000,
 	// TODO
 	
 	PSE_COMMAND_PLAYER                      = 0x00200000,
 	// TODO
 	
-	PSE_COMMAND_SOLVER_GUN                  = 0x00400000,
+	PSE_COMMAND_SOLVER_GUN                  = 0x00300000,
 	// TODO
 	
-	PSE_COMMAND_FLASHLIGHT                  = 0x00800000,
+	PSE_COMMAND_FLASHLIGHT                  = 0x00400000,
 	// TODO
 	
-	PSE_COMMAND_STATIC_MESH                 = 0x01000000,
+	PSE_COMMAND_STATIC_MESH                 = 0x00500000,
 	// TODO
 	
-	PSE_COMMAND_DYNAMIC_MESH                = 0x02000000,
-	PSE_COMMAND_DYNAMIC_MESH_CREATE         = 0x02000000,
-	PSE_COMMAND_DYNAMIC_MESH_SET_MATERIAL   = 0x02000001,
-	PSE_COMMAND_DYNAMIC_MESH_SET_MESH       = 0x02000002,
-	PSE_COMMAND_DYNAMIC_MESH_SET_VISIBILITY = 0x02000003,
+	PSE_COMMAND_REPLACE                     = 0x05062025,
+	
+	PSE_COMMAND_DYNAMIC_MESH                = 0x00600000,
+	PSE_COMMAND_DYNAMIC_MESH_CREATE         = 0x00600001,
+	PSE_COMMAND_DYNAMIC_MESH_SET_MATERIAL   = 0x00600002,
+	PSE_COMMAND_DYNAMIC_MESH_SET_MESH       = 0x00600003,
+	PSE_COMMAND_DYNAMIC_MESH_SET_VISIBILITY = 0x00600004,
 	// TODO
 	
-	PSE_COMMAND_ELEMENT                     = 0x04000000,
-	PSE_COMMAND_ELEMENT_CREATE              = 0x04000001,
-	PSE_COMMAND_ELEMENT_SET_CALLBACK        = 0x04000002,
-	PSE_COMMAND_ELEMENT_SET_STATE           = 0x04000003,
+	PSE_COMMAND_ELEMENT                     = 0x00700000,
+	PSE_COMMAND_ELEMENT_CREATE              = 0x00700001,
+	PSE_COMMAND_ELEMENT_SET_CALLBACK        = 0x00700002,
+	PSE_COMMAND_ELEMENT_SET_STATE           = 0x00700003,
 	// TODO
 	
-	PSE_TEST = 0xffffffff,
-	PSE_COMMAND_NONE = 0xffffffff
+	PSE_COMMAND_NONE                        = 0xffffffff
 };
 
 enum PseEvent : uint32_t
 {
-	PSE_EVENT_ELEMENT_CHANGED = 0x00000001,
-
+	PSE_EVENT_ELEMENT_CHANGED = 0x00000000,
+	
 	PSE_EVENT_NONE            = 0xffffffff
 };
 
@@ -58,21 +59,22 @@ enum PseResult : uint32_t
 
 enum PseMesh : uint32_t
 {
-	PSE_MESH_PLANE       = 0x00000000,
-	PSE_MESH_FACE        = 0x00000001,
-	PSE_MESH_CUBE        = 0x00000002,
+	PSE_MESH_PLANE               = 0x00000000,
+	PSE_MESH_FACE                = 0x00000001,
+	PSE_MESH_CUBE                = 0x00000002,
 	
-	PSE_MESH_CUP_INNER   = 0x00000003,
-	PSE_MESH_CUP_OUTER   = 0x00000004,
-	PSE_MESH_II_INNER    = 0x00000005,
-	PSE_MESH_II_OUTER    = 0x00000006,
-	PSE_MESH_O_INNER     = 0x00000007,
-	PSE_MESH_O_OUTER     = 0x00000008,
-	PSE_MESH_U_INNER     = 0x00000009,
-	PSE_MESH_U_OUTER     = 0x0000000A,
+	PSE_MESH_CUP_INNER           = 0x00000003,
+	PSE_MESH_CUP_OUTER           = 0x00000004,
+	PSE_MESH_II_INNER            = 0x00000005,
+	PSE_MESH_II_OUTER            = 0x00000006,
+	PSE_MESH_O_INNER             = 0x00000007,
+	PSE_MESH_O_OUTER             = 0x00000008,
+	PSE_MESH_U_INNER             = 0x00000009,
+	PSE_MESH_U_OUTER             = 0x0000000A,
 	
-	PSE_MESH_DOOR_FRAME  = 0x0000000B,
-	PSE_MESH_LASER_FRAME = 0x0000000C,
+	PSE_MESH_DOOR_FRAME          = 0x0000000B,
+	PSE_MESH_LASER_FRAME         = 0x0000000C,
+	PSE_MESH_LASER_FRAME_SHIFTED = 0x0000000E
 };
 
 enum PseMaterial : uint32_t
@@ -91,10 +93,34 @@ enum PseMaterial : uint32_t
 	PSE_MATERIAL_FLOOR_BLACK                 = 0x00000009,
 };
 
-enum PseElement : uint16_t
+enum PseClass : uint16_t
 {
-	PSE_ELEMENT_NONE   = 0x0000,
+	PSE_CLASS_ENTRY_ELEVATOR           = 0x0000,
+	PSE_CLASS_EXIT_ELEVATOR            = 0x0001,
 	
-	PSE_ELEMENT_DOOR   = 0x0001,
-	PSE_ELEMENT_BUTTON = 0x0002
+	PSE_CLASS_DOOR                     = 0x0002,
+	PSE_CLASS_BUTTON                   = 0x0003,
+	PSE_CLASS_ANTI_EXPROPRIATION_FIELD = 0x0004,
+	PSE_CLASS_PEDESTAL_BUTTON          = 0x0005,
+	PSE_CLASS_SOLVER_BUTTON            = 0x0006,
+	PSE_CLASS_INDICATOR                = 0x0007,
+	
+	PSE_CLASS_LASER_TX                 = 0x0008,
+	PSE_CLASS_LASER_RX                 = 0x0009,
+	PSE_CLASS_LASER_RELAY              = 0x000A,
+	PSE_CLASS_LASER_PLANE              = 0x000B,
+	
+	PSE_CLASS_LASER_CUBE               = 0x000C,
+	PSE_CLASS_WEIGHT_CUBE              = 0x000D,
+	
+	PSE_CLASS_FAITH_PLATE              = 0x000E,
+	PSE_CLASS_PANEL                    = 0x001F,
+	PSE_CLASS_STAIRS                   = 0x0010,
+	PSE_CLASS_CUBE_DROPPER             = 0x0011,
+	PSE_CLASS_SOLVER_GUN_PEDESTAL      = 0x0012,
+	PSE_CLASS_FLASHLIGHT               = 0x0013,
+	PSE_CLASS_WINDOW                   = 0x0014,
+	
+	PSE_CLASS_HINT                     = 0x0015,
+	PSE_CLASS_TRIGGER                  = 0x0016
 };

@@ -18,24 +18,26 @@ PseResult  pseBufferDataReadResult (const PseBufferData* pBufferData) { return p
 PseEvent   pseBufferDataReadEvent  (const PseBufferData* pBufferData) { return pBufferData ? pBufferData->event   : PSE_EVENT_NONE;   }
 
 // PseBufferData / Setters
-void pseBufferDataSetInt8 (PseBufferData* pBufferData, int32_t offset, int8_t  value) { if(pBufferData) pBufferData->Set<int8_t >(offset, value); }
-void pseBufferDataSetInt16(PseBufferData* pBufferData, int32_t offset, int16_t value) { if(pBufferData) pBufferData->Set<int16_t>(offset, value); }
-void pseBufferDataSetInt32(PseBufferData* pBufferData, int32_t offset, int32_t value) { if(pBufferData) pBufferData->Set<int32_t>(offset, value); }
-void pseBufferDataSetInt64(PseBufferData* pBufferData, int32_t offset, int64_t value) { if(pBufferData) pBufferData->Set<int64_t>(offset, value); }
-void pseBufferDataSetGUID (PseBufferData* pBufferData, int32_t offset, PseGUID value) { if(pBufferData) pBufferData->Set<PseGUID>(offset, value); }
-
+void pseBufferDataSetInt8     (PseBufferData* pBufferData, int32_t offset, int8_t  value)             { if(pBufferData) pBufferData->Set<int8_t      >(offset, value); }
+void pseBufferDataSetInt16    (PseBufferData* pBufferData, int32_t offset, int16_t value)             { if(pBufferData) pBufferData->Set<int16_t     >(offset, value); }
+void pseBufferDataSetInt32    (PseBufferData* pBufferData, int32_t offset, int32_t value)             { if(pBufferData) pBufferData->Set<int32_t     >(offset, value); }
+void pseBufferDataSetInt64    (PseBufferData* pBufferData, int32_t offset, int64_t value)             { if(pBufferData) pBufferData->Set<int64_t     >(offset, value); }
+void pseBufferDataSetFloat    (PseBufferData* pBufferData, int32_t offset, float value)               { if(pBufferData) pBufferData->Set<float       >(offset, value); }
+void pseBufferDataSetGUID     (PseBufferData* pBufferData, int32_t offset, PseGUID value)             { if(pBufferData) pBufferData->Set<PseGUID     >(offset, value); }
+void pseBufferDataSetVector2  (PseBufferData* pBufferData, int32_t offset, PseVector2 value)          { if(pBufferData) pBufferData->Set<PseVector2  >(offset, value); }
 void pseBufferDataSetVector3  (PseBufferData* pBufferData, int32_t offset, PseVector3 value)          { if(pBufferData) pBufferData->Set<PseVector3  >(offset, value); }
 void pseBufferDataSetQuat     (PseBufferData* pBufferData, int32_t offset, PseQuat value)             { if(pBufferData) pBufferData->Set<PseQuat     >(offset, value); }
-void pseBufferDataSetTransform(PseBufferData* pBufferData, int32_t offset, const PseTransform& value) { if(pBufferData) pBufferData->Set<PseTransform>(offset, value); }
+void pseBufferDataSetTransform(PseBufferData* pBufferData, int32_t offset, const PseTransform* value) { if(pBufferData) pBufferData->Set<PseTransform>(offset,*value); }
 void pseBufferDataSetColor    (PseBufferData* pBufferData, int32_t offset, PseColor value)            { if(pBufferData) pBufferData->Set<PseColor    >(offset, value); }
 
 // PseBufferData / Getters
-int8_t  pseBufferDataGetInt8 (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int8_t >(offset) : int8_t {}; }
-int16_t pseBufferDataGetInt16(const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int16_t>(offset) : int16_t{}; }
-int32_t pseBufferDataGetInt32(const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int32_t>(offset) : int32_t{}; }
-int64_t pseBufferDataGetInt64(const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int64_t>(offset) : int64_t{}; }
-PseGUID pseBufferDataGetGUID (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseGUID>(offset) : PseGUID{}; }
-
+int8_t       pseBufferDataGetInt8     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int8_t      >(offset) : int8_t      {}; }
+int16_t      pseBufferDataGetInt16    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int16_t     >(offset) : int16_t     {}; }
+int32_t      pseBufferDataGetInt32    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int32_t     >(offset) : int32_t     {}; }
+int64_t      pseBufferDataGetInt64    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int64_t     >(offset) : int64_t     {}; }
+float        pseBufferDataGetFloat    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<float       >(offset) : float       {}; }
+PseGUID      pseBufferDataGetGUID     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseGUID     >(offset) : PseGUID     {}; }
+PseVector2   pseBufferDataGetVector2  (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseVector2  >(offset) : PseVector3  {}; }
 PseVector3   pseBufferDataGetVector3  (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseVector3  >(offset) : PseVector3  {}; }
 PseQuat      pseBufferDataGetQuat     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseQuat     >(offset) : PseQuat     {}; }
 PseTransform pseBufferDataGetTransform(const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseTransform>(offset) : PseTransform{}; }
@@ -82,13 +84,13 @@ void*             pseGetSharedMemoryHandle() { return gPseSharedMemoryHandle; }
 // Command Buffer / Methods
 void     pseCommandBufferSynchronize() { return gPseCommandBuffer->synchronize(); }
 
-uint32_t pseCommandBufferSinglePush(const PseBufferData* pData) { return gPseCommandBuffer->singlePush(*pData); }
-void     pseCommandBufferSingleWait(uint32_t index, PseBufferData* pOutData) { *pOutData = gPseCommandBuffer->singleWait(index); }
-void     pseCommandBufferSinglePushAndWait(PseBufferData* pData) { *pData = gPseCommandBuffer->singlePushAndWait(*pData); }
+uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData) { return gPseCommandBuffer->singlePush(*pBufferData); }
+void     pseCommandBufferSingleWait(uint32_t index, PseBufferData* pOutBufferData) { *pOutBufferData = gPseCommandBuffer->singleWait(index); }
+void     pseCommandBufferSinglePushAndWait(PseBufferData* pBufferData) { *pBufferData = gPseCommandBuffer->singlePushAndWait(*pBufferData); }
 
-uint32_t pseCommandBufferBatchPush(const PseBufferData* pData, uint32_t count) { return gPseCommandBuffer->batchPush(pData, count); }
-void     pseCommandBufferBatchWait(uint32_t index, PseBufferData* pData, uint32_t count) { gPseCommandBuffer->batchWait(index, pData, count); }
-void     pseCommandBufferBatchPushAndWait(PseBufferData* pData, uint32_t count) { gPseCommandBuffer->batchpushAndWait(pData, count); }
+uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t count) { return gPseCommandBuffer->batchPush(pBufferData, count); }
+void     pseCommandBufferBatchWait(uint32_t index, PseBufferData* pBufferData, uint32_t count) { gPseCommandBuffer->batchWait(index, pBufferData, count); }
+void     pseCommandBufferBatchPushAndWait(PseBufferData* pBufferData, uint32_t count) { gPseCommandBuffer->batchPushAndWait(pBufferData, count); }
 
 uint32_t pseCommandBufferRawReserve(uint32_t count) { return gPseCommandBuffer->rawReserve(count); }
 void     pseCommandBufferRawCommit(uint32_t startIndex, uint32_t count) { gPseCommandBuffer->rawCommit(startIndex, count); }
@@ -96,4 +98,4 @@ void     pseCommandBufferRawWait(uint32_t index, uint32_t count) { gPseCommandBu
 void     pseCommandBufferRawCommitAndWait(uint32_t startIndex, uint32_t count) { gPseCommandBuffer->rawCommitAndWait(startIndex, count); }
 
 // Event Buffer / Methods
-int32_t pseEventBufferTryGet(PseBufferData* pOutData) { return gPseEventBuffer->tryGet(*pOutData) ? 1 : 0; }
+int32_t pseEventBufferTryGet(PseBufferData* pOutBufferData) { return gPseEventBuffer->tryGet(*pOutBufferData) ? 1 : 0; }

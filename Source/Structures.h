@@ -9,6 +9,14 @@
 #define PSE_COMMAND_BUFFER_SIZE 2048
 #define PSE_EVENT_BUFFER_SIZE 256
 
+typedef uint64_t PseGUID;
+
+typedef struct { float x, y; } PseVector2;
+typedef struct { float x, y, z; } PseVector3;
+typedef struct { float x, y, z, w; } PseQuat;
+typedef struct { PseQuat quat; PseVector3 location; PseVector3 scale; } PseTransform;
+typedef struct { uint8_t r, g, b, a; } PseColor;
+
 struct PseBufferData
 {
     union
@@ -21,17 +29,17 @@ struct PseBufferData
     uint8_t data[60];
 	
 #ifdef __cplusplus
-    template<int32_t Offset, typename T>
-    T Get() const { return *reinterpret_cast<const T*>(&data[Offset]); }
+    template<int32_t offset, typename T>
+    T get() const { return *reinterpret_cast<const T*>(&data[offset]); }
 	
-    template<int32_t Offset, typename T>
-    PseBufferData& Set(const T& InData) { std::memcpy(&data[Offset], &InData, sizeof(T)); return *this; }
+    template<int32_t offset, typename T>
+    PseBufferData& set(const T& inData) { std::memcpy(&data[offset], &inData, sizeof(T)); return *this; }
     
     template<typename T>
-    T Get(int32_t Offset) const { return *reinterpret_cast<const T*>(&data[Offset]); }
+    T get(int32_t offset) const { return *reinterpret_cast<const T*>(&data[offset]); }
 	
     template<typename T>
-    PseBufferData& Set(int32_t Offset, const T& InData) { std::memcpy(&data[Offset], &InData, sizeof(T)); return *this; }
+    PseBufferData& set(int32_t offset, const T& inData) { std::memcpy(&data[offset], &inData, sizeof(T)); return *this; }
 #endif
 };
 
@@ -48,7 +56,7 @@ struct PseCommandBuffer
 	void synchronize() const
     {
         uint32_t pse = pseIndex.load(std::memory_order_relaxed);
-        while (true)
+        while(true)
         {
             uint32_t game = gameIndex.load(std::memory_order_acquire);
             if((int32_t)(game - pse) >= 0) break;
@@ -59,7 +67,7 @@ struct PseCommandBuffer
 #pragma region SINGLE - Immediate Access (One-by-one)
     uint32_t singlePush(const PseBufferData& data)
     {
-        while (true)
+        while(true)
         {
             uint32_t pse = pseIndex.load(std::memory_order_relaxed);
             uint32_t game = gameIndex.load(std::memory_order_acquire);
@@ -76,10 +84,10 @@ struct PseCommandBuffer
     
     PseBufferData singleWait(uint32_t index) const
     {
-        while (true)
+        while(true)
         {
             uint32_t game = gameIndex.load(std::memory_order_acquire);
-
+            
             if((int32_t)(game - index) > 0)
             {
                 return (*this)[index];
@@ -94,7 +102,6 @@ struct PseCommandBuffer
 #pragma region BATCH - Batch Access (Copying)
     uint32_t batchPush(const PseBufferData* pData, uint32_t count)
     {
-        static_assert(sizeof(PseBufferData) == 64, "Structure must be exactly 64 bytes!");
         if(count == 0) return 0;
 
         while(true)
@@ -104,7 +111,7 @@ struct PseCommandBuffer
             
             if(pse - game + count <= PSE_COMMAND_BUFFER_SIZE)
             {
-                this->rawCopy((void*)pData, pse, count, true);
+                rawCopy((void*)pData, pse, count, true);
                 pseIndex.store(pse + count, std::memory_order_release);
                 return pse;
             }
@@ -114,24 +121,22 @@ struct PseCommandBuffer
     
     void batchWait(uint32_t index, PseBufferData* pData, uint32_t count)
     {
-        static_assert(sizeof(PseBufferData) == 64, "Structure must be exactly 64 bytes!");
         if(count == 0) return;
-
+        
         while(true)
         {
             uint32_t game = gameIndex.load(std::memory_order_acquire);
             if((int32_t)(game - (index + count)) >= 0)
             {
-                this->rawCopy(pData, index, count, false);
+                rawCopy(pData, index, count, false);
                 return;
             }
             _mm_pause();
         }
     }
     
-    void batchpushAndWait(PseBufferData* pData, uint32_t count)
+    void batchPushAndWait(PseBufferData* pData, uint32_t count)
     {
-        static_assert(sizeof(PseBufferData) == 64, "Structure must be exactly 64 bytes!");
         batchWait(batchPush(pData, count), pData, count);
     }
 #pragma endregion
@@ -165,6 +170,7 @@ struct PseCommandBuffer
     void rawCommitAndWait(uint32_t startIndex, uint32_t count) { rawCommit(startIndex, count); rawWait(startIndex, count); }
 #pragma endregion
     
+private:
     void rawCopy(void* pExternalData, uint32_t absoluteIndex, uint32_t count, bool bToBuffer)
     {
         uint32_t spaceAtEnd = PSE_COMMAND_BUFFER_SIZE - (absoluteIndex & (PSE_COMMAND_BUFFER_SIZE - 1));
