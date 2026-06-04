@@ -27,5 +27,5 @@
 |   **0x0012**   | PSE_CLASS_SOLVER_GUN_PEDESTAL      | ![](../../../Assets/Enums/Class/PSE_CLASS_SOLVER_GUN_PEDESTAL.png)      |
 |   **0x0013**   | PSE_CLASS_FLASHLIGHT               | ![](../../../Assets/Enums/Class/PSE_CLASS_FLASHLIGHT.png)               |
 |   **0x0014**   | PSE_CLASS_WINDOW                   | ![](../../../Assets/Enums/Class/PSE_CLASS_WINDOW.png)                   |
-|   **0x0015**   | PSE_CLASS_HINT                     | ![](../../../Assets/Enums/Class/PSE_CLASS_HINT.png)                     |
-|   **0x0016**   | PSE_CLASS_TRIGGER                  | ![](../../../Assets/Enums/Class/PSE_CLASS_TRIGGER.png)                  |
+|   **0x0015**   | PSE_CLASS_TRIGGER                  | ![](../../../Assets/Enums/Class/PSE_CLASS_TRIGGER.png)                  |
+|   **0x0016**   | PSE_CLASS_LAMP                     | ![](../../../Assets/Enums/Class/PSE_CLASS_LAMP.png)                  |
