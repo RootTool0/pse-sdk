@@ -16,3 +16,5 @@
 | **0x0007** | PSE_MATERIAL_WALL_BLACK_BIG              | ![](../../../Assets/Enums/Material/PSE_MATERIAL_WALL_BLACK_BIG.png)              |
 | **0x0008** | PSE_MATERIAL_FLOOR_WHITE                 | ![](../../../Assets/Enums/Material/PSE_MATERIAL_FLOOR_WHITE.png)                 |
 | **0x0009** | PSE_MATERIAL_FLOOR_BLACK                 | ![](../../../Assets/Enums/Material/PSE_MATERIAL_FLOOR_BLACK.png)                 |
+| **0x0010** | PSE_MATERIAL_WINDOW_METAL_GRID           | ![](../../../Assets/Enums/Material/PSE_MATERIAL_FLOOR_BLACK.png)                 |
+| **0x0011** | PSE_MATERIAL_WINDOW_GLASS_METAL_GRID     | ![](../../../Assets/Enums/Material/PSE_MATERIAL_FLOOR_BLACK.png)                 |
