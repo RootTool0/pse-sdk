@@ -1,70 +1,85 @@
-#include "PSE.h"
+// Portal Solver Editor SDK
 
+#include "pse.h"
+
+#include <atomic>
 #include <Windows.h>
 
+// Static
+static inline void* gPseSharedMemoryHandle = nullptr;
 static inline PseBuffers* gPseBuffers = nullptr;
 static inline PseCommandBuffer* gPseCommandBuffer = nullptr;
 static inline PseEventBuffer* gPseEventBuffer = nullptr;
-static inline void* gPseSharedMemoryHandle = nullptr;
+static inline uint32_t gPseEventBufferIndex = 0;
 
-// PseBufferData / Create
-void pseBufferDataCreateCommand(PseBufferData* pBufferData, PseCommand command) { if(pBufferData){ std::memset(pBufferData, 0, sizeof(PseBufferData)); pBufferData->command = command; }}
-void pseBufferDataCreateResult (PseBufferData* pBufferData, PseResult  result ) { if(pBufferData){ std::memset(pBufferData, 0, sizeof(PseBufferData)); pBufferData->result  = result;  }}
-void pseBufferDataCreateEvent  (PseBufferData* pBufferData, PseEvent   event  ) { if(pBufferData){ std::memset(pBufferData, 0, sizeof(PseBufferData)); pBufferData->event   = event;   }}
+// Private
+static void privateCommandBufferRawCopy(void* pExternalData, uint32_t absoluteIndex, uint32_t count, bool bToBuffer)
+{
+    uint32_t spaceAtEnd = PSE_COMMAND_BUFFER_SIZE - (absoluteIndex & (PSE_COMMAND_BUFFER_SIZE - 1));
+    void* pInternalStart = pseCommandBufferRawAt(absoluteIndex);
+    
+    if(count <= spaceAtEnd)
+    {
+        std::memcpy
+        (
+            bToBuffer ? pInternalStart : pExternalData,
+            bToBuffer ? pExternalData : pInternalStart,
+            count * 64
+        );
+    }
+    else
+    {
+        uint32_t BytesAtEnd = spaceAtEnd * 64;
+            
+        std::memcpy
+        (
+            bToBuffer ? pInternalStart : pExternalData,
+            bToBuffer ? pExternalData : pInternalStart,
+            BytesAtEnd
+        );
+            
+        std::memcpy
+        (
+            bToBuffer ? (uint8_t*)&gPseCommandBuffer->buffer[0] : (uint8_t*)pExternalData + BytesAtEnd,
+            bToBuffer ? (uint8_t*)pExternalData + BytesAtEnd : (uint8_t*)&gPseCommandBuffer->buffer[0],
+            (count - spaceAtEnd) * 64
+        );
+    }
+}
 
-// PseBufferData / Read
-PseCommand pseBufferDataReadCommand(const PseBufferData* pBufferData) { return pBufferData ? pBufferData->command : PSE_COMMAND_NONE; }
-PseResult  pseBufferDataReadResult (const PseBufferData* pBufferData) { return pBufferData ? pBufferData->result  : PSE_RESULT_NONE;  }
-PseEvent   pseBufferDataReadEvent  (const PseBufferData* pBufferData) { return pBufferData ? pBufferData->event   : PSE_EVENT_NONE;   }
+PseBufferData* privateEventBufferRawAt(uint32_t absoluteIndex)
+{
+    return &gPseEventBuffer->buffer[absoluteIndex & (PSE_EVENT_BUFFER_SIZE - 1)];
+}
 
-// PseBufferData / Setters
-void pseBufferDataSetInt8     (PseBufferData* pBufferData, int32_t offset, int8_t  value)             { if(pBufferData) pBufferData->Set<int8_t      >(offset, value); }
-void pseBufferDataSetInt16    (PseBufferData* pBufferData, int32_t offset, int16_t value)             { if(pBufferData) pBufferData->Set<int16_t     >(offset, value); }
-void pseBufferDataSetInt32    (PseBufferData* pBufferData, int32_t offset, int32_t value)             { if(pBufferData) pBufferData->Set<int32_t     >(offset, value); }
-void pseBufferDataSetInt64    (PseBufferData* pBufferData, int32_t offset, int64_t value)             { if(pBufferData) pBufferData->Set<int64_t     >(offset, value); }
-void pseBufferDataSetFloat    (PseBufferData* pBufferData, int32_t offset, float value)               { if(pBufferData) pBufferData->Set<float       >(offset, value); }
-void pseBufferDataSetGUID     (PseBufferData* pBufferData, int32_t offset, PseGUID value)             { if(pBufferData) pBufferData->Set<PseGUID     >(offset, value); }
-void pseBufferDataSetVector2  (PseBufferData* pBufferData, int32_t offset, PseVector2 value)          { if(pBufferData) pBufferData->Set<PseVector2  >(offset, value); }
-void pseBufferDataSetVector3  (PseBufferData* pBufferData, int32_t offset, PseVector3 value)          { if(pBufferData) pBufferData->Set<PseVector3  >(offset, value); }
-void pseBufferDataSetQuat     (PseBufferData* pBufferData, int32_t offset, PseQuat value)             { if(pBufferData) pBufferData->Set<PseQuat     >(offset, value); }
-void pseBufferDataSetTransform(PseBufferData* pBufferData, int32_t offset, const PseTransform* value) { if(pBufferData) pBufferData->Set<PseTransform>(offset,*value); }
-void pseBufferDataSetColor    (PseBufferData* pBufferData, int32_t offset, PseColor value)            { if(pBufferData) pBufferData->Set<PseColor    >(offset, value); }
+inline std::atomic<uint32_t>* privateAsAtomic(uint32_t* pVariable)
+{
+    return reinterpret_cast<std::atomic<uint32_t>*>(pVariable);
+}
 
-// PseBufferData / Getters
-int8_t       pseBufferDataGetInt8     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int8_t      >(offset) : int8_t      {}; }
-int16_t      pseBufferDataGetInt16    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int16_t     >(offset) : int16_t     {}; }
-int32_t      pseBufferDataGetInt32    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int32_t     >(offset) : int32_t     {}; }
-int64_t      pseBufferDataGetInt64    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<int64_t     >(offset) : int64_t     {}; }
-float        pseBufferDataGetFloat    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<float       >(offset) : float       {}; }
-PseGUID      pseBufferDataGetGUID     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseGUID     >(offset) : PseGUID     {}; }
-PseVector2   pseBufferDataGetVector2  (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseVector2  >(offset) : PseVector3  {}; }
-PseVector3   pseBufferDataGetVector3  (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseVector3  >(offset) : PseVector3  {}; }
-PseQuat      pseBufferDataGetQuat     (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseQuat     >(offset) : PseQuat     {}; }
-PseTransform pseBufferDataGetTransform(const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseTransform>(offset) : PseTransform{}; }
-PseColor     pseBufferDataGetColor    (const PseBufferData* pBufferData, int32_t offset) { return pBufferData ? pBufferData->Get<PseColor    >(offset) : PseColor    {}; }
-
-// Buffers / Basic
-int32_t pseInitializeBuffers()
+// Buffers / Core
+int32_t pseInitializeBuffers(void)
 {
     gPseSharedMemoryHandle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, "Global\\PortalSolverEditorSDK");
     if(!gPseSharedMemoryHandle) return -1; // Could not open file mapping object
 	
-    void* pBuf = MapViewOfFile(gPseSharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(PseBuffers));
-    if(!pBuf)
+    void* pBuffers = MapViewOfFile(gPseSharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(PseBuffers));
+    if(!pBuffers)
     {
         CloseHandle(gPseSharedMemoryHandle);
         gPseSharedMemoryHandle = nullptr;
         return -2; // Could not map view of file
     }
     
-    gPseBuffers = new(pBuf) PseBuffers();
+    gPseBuffers = static_cast<PseBuffers*>(pBuffers);
     gPseCommandBuffer = &gPseBuffers->commandBuffer;
     gPseEventBuffer = &gPseBuffers->eventBuffer;
+    gPseEventBufferIndex = 0;
     
     return 0;
 }
 
-void pseDeinitializeBuffers()
+void pseDeinitializeBuffers(void)
 {
     if(gPseBuffers) UnmapViewOfFile(gPseBuffers);
     if(gPseSharedMemoryHandle) CloseHandle(gPseSharedMemoryHandle);
@@ -75,27 +90,141 @@ void pseDeinitializeBuffers()
     gPseSharedMemoryHandle = nullptr;
 }
 
-// Buffers / Address Getters
-PseBuffers*       pseGetBuffersAddress() { return gPseBuffers; }
-PseCommandBuffer* pseGetCommandBufferAddress() { return gPseCommandBuffer; }
-PseEventBuffer*   pseGetEventBufferAddress() { return gPseEventBuffer; }
-void*             pseGetSharedMemoryHandle() { return gPseSharedMemoryHandle; }
+PseBuffers*       pseGetBuffersAddress(void)       { return gPseBuffers; }
+PseCommandBuffer* pseGetCommandBufferAddress(void) { return gPseCommandBuffer; }
+PseEventBuffer*   pseGetEventBufferAddress(void)   { return gPseEventBuffer; }
+void*             pseGetSharedMemoryHandle(void)   { return gPseSharedMemoryHandle; }
 
 // Command Buffer / Methods
-void     pseCommandBufferSynchronize() { return gPseCommandBuffer->synchronize(); }
+void pseCommandBufferSynchronize(void)
+{
+    uint32_t pse = privateAsAtomic(&gPseCommandBuffer->pseIndex)->load(std::memory_order_relaxed);
+    while(true)
+    {
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+        if((int32_t)(game - pse) >= 0) break;
+        _mm_pause();
+    }
+}
 
-uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData) { return gPseCommandBuffer->singlePush(*pBufferData); }
-void     pseCommandBufferSingleWait(uint32_t index, PseBufferData* pOutBufferData) { *pOutBufferData = gPseCommandBuffer->singleWait(index); }
-void     pseCommandBufferSinglePushAndWait(PseBufferData* pBufferData) { *pBufferData = gPseCommandBuffer->singlePushAndWait(*pBufferData); }
+uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData)
+{
+    while(true)
+    {
+        uint32_t pse = privateAsAtomic(&gPseCommandBuffer->pseIndex)->load(std::memory_order_relaxed);
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
 
-uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t count) { return gPseCommandBuffer->batchPush(pBufferData, count); }
-void     pseCommandBufferBatchWait(uint32_t index, PseBufferData* pBufferData, uint32_t count) { gPseCommandBuffer->batchWait(index, pBufferData, count); }
-void     pseCommandBufferBatchPushAndWait(PseBufferData* pBufferData, uint32_t count) { gPseCommandBuffer->batchPushAndWait(pBufferData, count); }
+        if(pse - game < PSE_COMMAND_BUFFER_SIZE)
+        {
+            *pseCommandBufferRawAt(pse) = *pBufferData;
+            privateAsAtomic(&gPseCommandBuffer->pseIndex)->store(pse + 1, std::memory_order_release);
+            return pse;
+        }
+        
+        _mm_pause();
+    }
+}
 
-uint32_t pseCommandBufferRawReserve(uint32_t count) { return gPseCommandBuffer->rawReserve(count); }
-void     pseCommandBufferRawCommit(uint32_t startIndex, uint32_t count) { gPseCommandBuffer->rawCommit(startIndex, count); }
-void     pseCommandBufferRawWait(uint32_t index, uint32_t count) { gPseCommandBuffer->rawWait(index, count); }
-void     pseCommandBufferRawCommitAndWait(uint32_t startIndex, uint32_t count) { gPseCommandBuffer->rawCommitAndWait(startIndex, count); }
+void pseCommandBufferSingleWait(uint32_t absoluteIndex, PseBufferData* pOutBufferData)
+{
+    while(true)
+    {
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+        
+        if(game > absoluteIndex)
+            *pOutBufferData = *pseCommandBufferRawAt(absoluteIndex);
+        
+        _mm_pause();
+    }
+}
+
+void pseCommandBufferSinglePushAndWait(PseBufferData* pOutBufferData)
+{
+    pseCommandBufferSingleWait(pseCommandBufferSinglePush(pOutBufferData), pOutBufferData);
+}
+
+uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t count)
+{
+    while(true)
+    {
+        uint32_t pse = privateAsAtomic(&gPseCommandBuffer->pseIndex)->load(std::memory_order_relaxed);
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+            
+        if(pse - game + count <= PSE_COMMAND_BUFFER_SIZE)
+        {
+            privateCommandBufferRawCopy((void*)pBufferData, pse, count, true);
+            privateAsAtomic(&gPseCommandBuffer->pseIndex)->store(pse + count, std::memory_order_release);
+            return pse;
+        }
+        _mm_pause();
+    }
+}
+
+void pseCommandBufferBatchWait(uint32_t absoluteIndex, PseBufferData* pBufferData, uint32_t count)
+{
+    if(count == 0) return;
+        
+    while(true)
+    {
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+        if((int32_t)(game - (absoluteIndex + count)) >= 0)
+        {
+            privateCommandBufferRawCopy((void*)pBufferData, absoluteIndex, count, false);
+            return;
+        }
+        _mm_pause();
+    }
+}
+
+void pseCommandBufferBatchPushAndWait(PseBufferData* pBufferData, uint32_t count)
+{
+    pseCommandBufferBatchWait(pseCommandBufferBatchPush(pBufferData, count), pBufferData, count);
+}
+
+PseBufferData* pseCommandBufferRawAt(uint32_t absoluteIndex)
+{
+    return &gPseCommandBuffer->buffer[absoluteIndex & (PSE_COMMAND_BUFFER_SIZE - 1)];
+}
+
+uint32_t pseCommandBufferRawReserve(uint32_t count)
+{
+    while(true)
+    {
+        uint32_t pse = privateAsAtomic(&gPseCommandBuffer->pseIndex)->load(std::memory_order_relaxed);
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+        if(pse - game + count <= PSE_COMMAND_BUFFER_SIZE) return pse;
+        _mm_pause();
+    }
+}
+
+void pseCommandBufferRawCommit(uint32_t startAbsoluteIndex, uint32_t count)
+{
+    privateAsAtomic(&gPseCommandBuffer->pseIndex)->store(startAbsoluteIndex + count, std::memory_order_release);
+}
+
+void pseCommandBufferRawWait(uint32_t absoluteIndex, uint32_t count)
+{
+    while(true)
+    {
+        uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
+        if((int32_t)(game - (absoluteIndex + count)) >= 0) return;
+        _mm_pause();
+    }
+}
+
+void pseCommandBufferRawCommitAndWait(uint32_t startAbsoluteIndex, uint32_t count)
+{
+    pseCommandBufferRawCommit(startAbsoluteIndex, count);
+    pseCommandBufferRawWait(startAbsoluteIndex, count);
+}
 
 // Event Buffer / Methods
-int32_t pseEventBufferTryGet(PseBufferData* pOutBufferData) { return gPseEventBuffer->tryGet(*pOutBufferData) ? 1 : 0; }
+int32_t pseEventBufferTryGet(PseBufferData* pOutBufferData)
+{
+    uint32_t game = privateAsAtomic(&gPseEventBuffer->gameIndex)->load(std::memory_order_acquire);
+    if((int32_t)(game - gPseEventBufferIndex) <= 0) return 0;
+    
+    *pOutBufferData = *privateEventBufferRawAt(gPseEventBufferIndex);
+    ++gPseEventBufferIndex;
+    return 1;
+}

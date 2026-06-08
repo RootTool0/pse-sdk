@@ -20,4 +20,4 @@
 | **PseVector3**   | `float x`, `float y`, `float z`                           |           12           | Трехмерный вектор           |
 | **PseQuat**      | `float x`, `float y`, `float z`, `float w`                |           16           | Кватернион                  |
 | **PseTransform** | `PseQuat quat`, `PseVector3 location`, `PseVector3 scale` |           40           | Трансформ объекта           |
-| **PseColor**     | `uint8_t r`, `uint8_t g`, `uint8_t b`, `uint8_t a`        |           4            | Цвет в формате RGBA (0-255) |
+| **PseColor**     | `uint8_t r`, `uint8_t g`, `uint8_t b`,                    |           4            | Цвет в формате RGBA (0-255) |
