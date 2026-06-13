@@ -24,7 +24,7 @@ namespace PseUtilities
             return (inRegister & (1U << offset)) != 0;
         }
         
-        template<typename T, uint8_t offset>
+        template<uint8_t offset, typename T>
         void set(PseRegister& outRegister, const T InValue)
         {
             static_assert(sizeof(T) * 8 + offset <= 32, "T or offset is too big for 32-bit register!");
@@ -33,7 +33,7 @@ namespace PseUtilities
             outRegister = (outRegister & ~(Mask << offset)) | ((static_cast<uint32_t>(InValue) & Mask) << offset);
         }
         
-        template<typename T, uint8_t offset>
+        template<uint8_t offset, typename T>
         T get(const PseRegister inRegister)
         {
             static_assert(sizeof(T) * 8 + offset <= 32, "T or offset is too big for 32-bit register!");
@@ -42,7 +42,7 @@ namespace PseUtilities
             return static_cast<T>((inRegister >> offset) & Mask);
         }
         
-        template<typename T, uint8_t offset, uint8_t bitCount>
+        template<uint8_t offset, typename T, uint8_t bitCount>
         void setAs(PseRegister& outRegister, const T inValue)
         {
             static_assert(sizeof(T) * 8 + offset <= 32, "T or offset is too big for 32-bit register!");
@@ -50,7 +50,7 @@ namespace PseUtilities
             outRegister = (outRegister & ~(mask << offset)) | ((static_cast<uint32_t>(inValue) & mask) << offset);
         }
         
-        template<typename T, uint8_t offset, uint8_t bitCount>
+        template<uint8_t offset, typename T, uint8_t bitCount>
         T getAs(const PseRegister inRegister)
         {
             static_assert(sizeof(T) * 8 + offset <= 32, "T or offset is too big for 32-bit register!");
@@ -61,13 +61,13 @@ namespace PseUtilities
     
     namespace BufferData
     {
-        template<typename T, uint8_t offset>
+        template<uint8_t offset, typename T>
         void set(PseBufferData& outBufferData, const T& inValue) 
         {
             std::memcpy(&outBufferData.data[offset], &inValue, sizeof(T));
         }
         
-        template<typename T, uint8_t offset>
+        template<uint8_t offset, typename T>
         T get(const PseBufferData& inBufferData) 
         {
             T result;

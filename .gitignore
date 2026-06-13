@@ -2,3 +2,4 @@
 .venv
 /Build
 **/__pycache__
+/example/build
