@@ -6,6 +6,5 @@
 
 ## C++ Справочник удобных утилит
 
-> [Register](Register.md)
-
-> [BufferData](BufferData.md)
+- [Register](Register.md)
+- [BufferData](BufferData.md)

@@ -32,7 +32,7 @@ int main()
     
     {
         PseBufferData bufferData{};
-        bufferData.header = 0x00100008;
+        bufferData.header = PSE_COMMAND_GAME_INITIALIZE;
         
         pseCommandBufferSinglePushAndWait(&bufferData);
         if(bufferData.header != PSE_RESULT_SUCCESS)

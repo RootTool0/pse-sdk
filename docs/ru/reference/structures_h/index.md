@@ -4,12 +4,8 @@
 
 <br>
 
-> [Common](common.md)
-
-> [PseBufferData](PseBufferData.md)
-
-> [PseCommandBuffer](PseCommandBuffer.md)
-
-> [PseEventBuffer](PseEventBuffer.md)
-
-> [PseBuffers](PseBuffers.md)
+- [Common](common.md)
+- [PseBufferData](PseBufferData.md)
+- [PseCommandBuffer](PseCommandBuffer.md)
+- [PseEventBuffer](PseEventBuffer.md)
+- [PseBuffers](PseBuffers.md)

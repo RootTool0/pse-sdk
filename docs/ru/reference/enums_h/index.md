@@ -4,14 +4,9 @@
 
 <br>
 
-> [PseCommand](PseCommand.md)
-
-> [PseResult](PseResult.md)
-
-> [PseEvent](PseEvent.md)
-
-> [PseMesh](PseMesh.md)
-
-> [PseMaterial](PseMaterial.md)
-
-> [PseClass](PseClass.md)
+- [PseCommand](PseCommand.md)
+- [PseResult](PseResult.md)
+- [PseEvent](PseEvent.md)
+- [PseMesh](PseMesh.md)
+- [PseMaterial](PseMaterial.md)
+- [PseClass](PseClass.md)
