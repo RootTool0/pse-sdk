@@ -10,9 +10,9 @@
 
 ## Entry Elevator [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_ENTRY_ELEVATOR.png)
 
-**PseClass:** `0x0000`
+**PseClass:** `PSE_CLASS_ENTRY_ELEVATOR` _(0x0000)_
 
 **Описание Элемента:** Ванильный лифт для входа на уровень
 
@@ -37,9 +37,9 @@
 
 ## Exit Elevator [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_EXIT_ELEVATOR.png)
 
-**PseClass:** `0x0001`
+**PseClass:** `PSE_CLASS_EXIT_ELEVATOR` _(0x0001)_
 
 **Описание Элемента:** Ванильный лифт для выхода с уровня
 
@@ -64,9 +64,9 @@
 
 ## Door [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_DOOR.png)
 
-**PseClass:** `0x0002`
+**PseClass:** `PSE_CLASS_DOOR` _(x0002)_
 
 **Описание Элемента:** Дверь.... просто дверь
 
@@ -91,9 +91,9 @@
 
 ## Button [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_BUTTON.png)
 
-**PseClass:** `0x0003`
+**PseClass:** `PSE_CLASS_BUTTON` _(0x0003)_
 
 **Описание Элемента:** _1500-мегаваттная экспериментальная сверхпрочная сверхударная сверхкнопка_
 
@@ -118,9 +118,9 @@
 
 ## Anti Expropriation Field [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_ANTI_EXPROPRIATION_FIELD.png)
 
-**PseClass:** `0x0004`
+**PseClass:** `PSE_CLASS_ANTI_EXPROPRIATION_FIELD` _(0x0004)_
 
 **Описание Элемента:** Поле анти-экспроприации, способное уничтожать вещи, убивать игрока, или переключать состяния **Солвер Гана**
 
@@ -156,9 +156,9 @@
 
 ## Pedestal Button [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_PEDESTAL_BUTTON.png)
 
-**PseClass:** `0x0005`
+**PseClass:** `PSE_CLASS_PEDESTAL_BUTTON` _(0x0005)_
 
 **Описание Элемента:** Пьедестал-кнопка, активируемая исключительно рукой игрока _(не Солвер Ганом)_
 
@@ -194,9 +194,9 @@
 
 ## Solver Button [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_SOLVER_BUTTON.png)
 
-**PseClass:** `0x0006`
+**PseClass:** `PSE_CLASS_SOLVER_BUTTON` _(0x0006)_
 
 **Описание Элемента:** Элемент, по функционалу схожий с **пьедестал кнопкой**, но активируемый исключительно **Солвер Ганом**
 
@@ -231,9 +231,9 @@
 
 ## Indicator [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_INDICATOR.png)
 
-**PseClass:** `0x0007`
+**PseClass:** `PSE_CLASS_INDICATOR` _(0x0007)_
 
 **Описание Элемента:** Индикатор,отображающий статус выполнения условия в виде значка или круговой шкалы времени (в режиме таймера)
 
@@ -258,9 +258,9 @@
 
 ## Laser Tx [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LASER_TX.png)
 
-**PseClass:** `0x0008`
+**PseClass:** `PSE_CLASS_LASER_TX` _(0x0008)_
 
 **Описание Элемента:** Лазерный излучатель, который излучает лазер определенного цвета при активации
 
@@ -285,9 +285,9 @@
 
 ## Laser Rx [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LASER_RX.png)
 
-**PseClass:** `0x0009`
+**PseClass:** `PSE_CLASS_LASER_RX` _(0x0009)_
 
 **Описание Элемента:** Лазерный приемник, который активируется если в него попадает лазерный луч (или активируется от конкретного цвета). Также может смешивать цвета нескольких лазерных лучей внутри себя
 
@@ -312,9 +312,9 @@
 
 ## Laser Relay [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LASER_RELAY.png)
 
-**PseClass:** `0x000A`
+**PseClass:** `PSE_CLASS_LASER_RELAY` _(0x000A)_
 
 **Описание Элемента:** Лазерное реле, которое активируется если через него проходит лазерный луч (или активируется от конкретного цвета). Также может смешивать цвета нескольких лазерных лучей внутри себя
 
@@ -339,9 +339,9 @@
 
 ## Laser Plane [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LASER_PLANE.png)
 
-**PseClass:** `0x000B`
+**PseClass:** `PSE_CLASS_LASER_PLANE` _(0x000B)_
 
 **Описание Элемента:** Лазерная пластина, способная переотражать лазеры
 
@@ -366,9 +366,9 @@
 
 ## Laser Cube [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LASER_CUBE.png)
 
-**PseClass:** `0x000C`
+**PseClass:** `PSE_CLASS_LASER_CUBE` _(0x000C)_
 
 **Описание Элемента:** Лазерный кубик для смешивания и перенаправления лазера
 
@@ -393,9 +393,9 @@
 
 ## Weight Cube [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_WEIGHT_CUBE.png)
 
-**PseClass:** `0x000D`
+**PseClass:** `PSE_CLASS_WEIGHT_CUBE` _(0x000D)_
 
 **Описание Элемента:** _Экспериментальный утяжеленный грузовой куб для активации 1500-мегаваттной экспериментальной сверхпрочной сверхударной сверхкнопки_
 
@@ -420,9 +420,9 @@
 
 ## Faith Plate [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_FAITH_PLATE.png)
 
-**PseClass:** `0x000E`
+**PseClass:** `PSE_CLASS_FAITH_PLATE` _(0x000E)_
 
 **Описание Элемента:** Ванильная панель веры
 
@@ -452,9 +452,9 @@
 
 ## Panel [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_PANEL.png)
 
-**PseClass:** `0x001F`
+**PseClass:** `PSE_CLASS_PANEL` _(0x000F)_
 
 **Описание Элемента:** Панель, на которой можно сидеть, стоять, прыгать, бегать, падать, приземляться, ударяться...
 
@@ -489,9 +489,9 @@
 
 ## Stairs [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_STAIRS.png)
 
-**PseClass:** `0x0010`
+**PseClass:** `PSE_CLASS_STAIRS` _(0x0010)_
 
 **Описание Элемента:** Обычная лестница, что еще сказать?
 
@@ -516,9 +516,9 @@
 
 ## Cube Dropper [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_CUBE_DROPPER.png)
 
-**PseClass:** `0x0011`
+**PseClass:** `PSE_CLASS_CUBE_DROPPER` _(0x0011)_
 
 **Описание Элемента:** Дроппер кубиков для спавна кубиков
 
@@ -550,9 +550,9 @@
 
 ## Solver Gun Pedestal [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_SOLVER_GUN_PEDESTAL.png)
 
-**PseClass:** `0x0012`
+**PseClass:** `PSE_CLASS_SOLVER_GUN_PEDESTAL` _(0x0012)_
 
 **Описание Элемента:** Пьедестал для взятия **Солвер Гана**
 
@@ -577,9 +577,9 @@
 
 ## Flashlight [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_FLASHLIGHT.png)
 
-**PseClass:** `0x0013`
+**PseClass:** `PSE_CLASS_FLASHLIGHT` _(0x0013)_
 
 **Описание Элемента:** Фонарик, который можно заспавнить и подобрать игроком
 
@@ -604,9 +604,9 @@
 
 ## Window [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_WINDOW.png)
 
-**PseClass:** `0x0014`
+**PseClass:** `PSE_CLASS_WINDOW` _(0x0014)_
 
 **Описание Элемента:** 
 
@@ -636,9 +636,9 @@
 
 ## Trigger [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_TRIGGER.png)
 
-**PseClass:** `0x0015`
+**PseClass:** `PSE_CLASS_TRIGGER` _(0x0015)_
 
 **Описание Элемента:** Очень функциональный триггер, правда
 
@@ -685,9 +685,9 @@
 
 ## Lamp [+]
 
-![](../../assets/portal_solver_logo.png)
+![](../../assets/enums_h/class/PSE_CLASS_LAMP.png)
 
-**PseClass:** `0x0016`
+**PseClass:** `PSE_CLASS_LAMP` _(0x0016)_
 
 **Описание Элемента:** Обычная лампа, которая меняет свой цвет в зависимости от **State** 
 

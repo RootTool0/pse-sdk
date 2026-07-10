@@ -161,7 +161,7 @@ enum PseClass : uint16_t
 	PSE_CLASS_WEIGHT_CUBE              = 0x000D,
 	
 	PSE_CLASS_FAITH_PLATE              = 0x000E,
-	PSE_CLASS_PANEL                    = 0x001F,
+	PSE_CLASS_PANEL                    = 0x000F,
 	PSE_CLASS_STAIRS                   = 0x0010,
 	PSE_CLASS_CUBE_DROPPER             = 0x0011,
 	PSE_CLASS_SOLVER_GUN_PEDESTAL      = 0x0012,

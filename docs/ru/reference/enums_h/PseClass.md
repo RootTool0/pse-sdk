@@ -21,7 +21,7 @@
 |   **0x000C**   | PSE_CLASS_LASER_CUBE               | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_CUBE.png)               |
 |   **0x000D**   | PSE_CLASS_WEIGHT_CUBE              | ![](../../../assets/enums_h/class/PSE_CLASS_WEIGHT_CUBE.png)              |
 |   **0x000E**   | PSE_CLASS_FAITH_PLATE              | ![](../../../assets/enums_h/class/PSE_CLASS_FAITH_PLATE.png)              |
-|   **0x001F**   | PSE_CLASS_PANEL                    | ![](../../../assets/enums_h/class/PSE_CLASS_PANEL.png)                    |
+|   **0x000F**   | PSE_CLASS_PANEL                    | ![](../../../assets/enums_h/class/PSE_CLASS_PANEL.png)                    |
 |   **0x0010**   | PSE_CLASS_STAIRS                   | ![](../../../assets/enums_h/class/PSE_CLASS_STAIRS.png)                   |
 |   **0x0011**   | PSE_CLASS_CUBE_DROPPER             | ![](../../../assets/enums_h/class/PSE_CLASS_CUBE_DROPPER.png)             |
 |   **0x0012**   | PSE_CLASS_SOLVER_GUN_PEDESTAL      | ![](../../../assets/enums_h/class/PSE_CLASS_SOLVER_GUN_PEDESTAL.png)      |
