@@ -6,6 +6,7 @@
 
 #define PSE_COMMAND_BUFFER_SIZE 2048
 #define PSE_EVENT_BUFFER_SIZE 256
+#define PSE_MAX_COMMANDS_PER_TICK 128
 
 typedef uint64_t PseGUID;
 typedef uint32_t PseRegister;
