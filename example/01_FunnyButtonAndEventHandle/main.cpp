@@ -24,8 +24,8 @@
 #include <cstdio>
 #include <random>
 
-#include "pse.h"
-#include "pse.hpp"
+#include "pse/pse.h"
+#include "pse/pse.hpp"
 
 // Глобальный идентификатор для отслеживания нашей кнопки
 PseGUID button;

@@ -75,8 +75,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "pse.h"
-#include "pse.hpp"
+#include "pse/pse.h"
+#include "pse/pse.hpp"
 
 int main() {
   printf("[SDK] Запуск и инициализация...\n");

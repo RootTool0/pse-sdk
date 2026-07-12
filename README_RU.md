@@ -32,8 +32,8 @@ _(все они лично проверены мной - правильно ис
 Базовый сценарий инициализации сессии и отправки команды на создание динамического меша с блокированием потока до получения ответа от игры
 
 ```cpp
-#include "pse.h"
-#include "pse.hpp"
+#include "pse/pse.h"
+#include "pse/pse.hpp"
 
 int main() {
     // Выделение и инициализация буферов
@@ -67,7 +67,7 @@ int main() {
 Для сборки динамической библиотеки _(`.dll` / `.so`)_ и заголовочных файлов в единую папку дистрибутива `dist/`, выполните следующие команды в терминале из корня репозитория:
 ```bash
 # 1. Генерируем файлы сборки и задаем папку для вывода в папку dist
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="../dist"
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="dist"
 
 # 2. Компилируем проект
 cmake --build build --config Release

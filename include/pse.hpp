@@ -4,9 +4,10 @@
 
 #ifdef __cplusplus
 
-#include "pse.h" 
 #include <cstring>
 #include <stdint.h>
+
+#include "pse/pse.h" 
 
 namespace pse
 {
