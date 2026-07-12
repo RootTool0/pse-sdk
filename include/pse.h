@@ -32,22 +32,22 @@ extern "C"
     // Command Buffer / Methods
     PSE_API void     pseCommandBufferSynchronize(void);
     
-    PSE_API uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData);
-    PSE_API void     pseCommandBufferSingleWait(uint32_t absoluteIndex, PseBufferData* pOutBufferData);
-    PSE_API void     pseCommandBufferSinglePushAndWait(PseBufferData* pOutBufferData);
+    PSE_API uint32_t pseCommandBufferSinglePush(const PseData* pInData);
+    PSE_API void     pseCommandBufferSingleWait(uint32_t absoluteIndex, PseData* pOutData);
+    PSE_API void     pseCommandBufferSinglePushAndWait(PseData* pOutData);
     
-    PSE_API uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t count);
-    PSE_API void     pseCommandBufferBatchWait(uint32_t absoluteIndex, PseBufferData* pOutBufferData, uint32_t count);
-    PSE_API void     pseCommandBufferBatchPushAndWait(PseBufferData* pOutBufferData, uint32_t count);
+    PSE_API uint32_t pseCommandBufferBatchPush(const PseData* pInData, uint32_t count);
+    PSE_API void     pseCommandBufferBatchWait(uint32_t absoluteIndex, PseData* pOutData, uint32_t count);
+    PSE_API void     pseCommandBufferBatchPushAndWait(PseData* pOutData, uint32_t count);
     
-    PSE_API PseBufferData* pseCommandBufferRawAt(uint32_t absoluteIndex);
-    PSE_API uint32_t       pseCommandBufferRawReserve(uint32_t count);
-    PSE_API void           pseCommandBufferRawCommit(uint32_t startAbsoluteIndex, uint32_t count);
-    PSE_API void           pseCommandBufferRawWait(uint32_t absoluteIndex, uint32_t count);
-    PSE_API void           pseCommandBufferRawCommitAndWait(uint32_t startAbsoluteIndex, uint32_t count);
+    PSE_API PseData* pseCommandBufferRawAt(uint32_t absoluteIndex);
+    PSE_API uint32_t pseCommandBufferRawReserve(uint32_t count);
+    PSE_API void     pseCommandBufferRawCommit(uint32_t startAbsoluteIndex, uint32_t count);
+    PSE_API void     pseCommandBufferRawWait(uint32_t absoluteIndex, uint32_t count);
+    PSE_API void     pseCommandBufferRawCommitAndWait(uint32_t startAbsoluteIndex, uint32_t count);
     
     // Event Buffer / Methods
-    PSE_API int32_t pseEventBufferTryGet(PseBufferData* pOutBufferData);
+    PSE_API int32_t pseEventBufferTryGet(PseData* pOutData);
     
 #ifdef __cplusplus
 }

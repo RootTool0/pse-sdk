@@ -20,17 +20,16 @@
     - [PseClass](reference/enums_h/PseClass.md)
   - [Structures.h](reference/structures_h/index.md)
     - [Common](reference/structures_h/common.md)
-    - [PseBufferData](reference/structures_h/PseBufferData.md)
+    - [PseData](reference/structures_h/PseData.md)
     - [PseCommandBuffer](reference/structures_h/PseCommandBuffer.md)
     - [PseEventBuffer](reference/structures_h/PseEventBuffer.md)
     - [PseBuffers](reference/structures_h/PseBuffers.md)
   - [Pse.h](reference/pse_h/index.md)
   - [Pse.hpp](reference/pse_hpp/index.md)
     - [Register](reference/pse_hpp/Register.md)
-    - [BufferData](reference/pse_hpp/BufferData.md)
+    - [Data](reference/pse_hpp/Data.md)
 - [Concept](concept/index.md)
   - [Elements](concept/elements.md)
-
 
 ## Концепция и архитектура SDK
 
@@ -61,11 +60,11 @@ SDK не кэширует данные, не хранит внутренние �
 
 Также в документации будут расписаны все смещения и индексы
 
-Давайте посмотрим, как выглядит классический цикл "Hello, World!" на живом примере
+Давайте посмотрим, как выглядит классический цикл **"Hello, World!"** на живом примере
 
 ## Быстрый старт
 
-Взаимодействие с игрой всегда строится по одному сценарию: мы берем универсальную **64-байтовую структуру PseBufferData**, закидываем в нее заголовок, заполняем оставшиеся 60 байт нужными данными и толкаем в кольцевой буфер
+Взаимодействие с игрой всегда строится по одному сценарию: мы берем универсальную **64-байтовую структуру PseData**, задаем в нее команду _(заголовок)_, заполняем оставшиеся 60 байт полезными данными и отправляем в SDK _(в кольцевой буфер)_
 
 Вот как выглядит минимальный рабочий код на **C++**, который подключается к игре, создает кнопку, затем отключается:
 ```cpp
@@ -78,8 +77,8 @@ SDK не кэширует данные, не хранит внутренние �
 int main() {
   printf("[SDK] Запуск и инициализация...\n");
   
-  // 1. Подключаемся к Shared Memory, которую для нас уже создала игра.
-  // Если игра не запущена, функция вернет ошибку.
+  // 1. Подключаемся к Shared Memory, которую для нас уже создала игра
+  // Если игра не запущена, функция вернет ошибку
   if (pseInitializeBuffers() != 0) { 
       printf(stderr, "[SDK] Ошибка: Игра не запущена или Shared Memory недоступна!\n");
       return -1;
@@ -89,20 +88,20 @@ int main() {
   // 1: Инициализация игры
   {
       // Создаем пустую 64-байтовую структуру на стеке
-      PseBufferData bufferData{};
+      PseData data{};
       
       // Заполняем заголовок пакета. Говорим игре: "Команда: Проинициализироваться!"
-      bufferData.header = PSE_COMMAND_GAME_INITIALIZE;
+      data.header = PSE_COMMAND_GAME_INITIALIZE;
       
       printf("[SDK] Отправляем запрос на инициализацию...\n");
       
-      // Отправляем команду и блокируем поток, пока игра не выполнит ее.
+      // Отправляем команду и блокируем поток, пока игра не выполнит ее
       // Игра сотрет нашу команду и запишет результат прямо в это же поле header!
-      pseCommandBufferSinglePushAndWait(&bufferData);
+      pseCommandBufferSinglePushAndWait(&data);
       
-      if (bufferData.header != PSE_RESULT_SUCCESS) 
+      if (data.header != PSE_RESULT_SUCCESS) 
       {
-          printf("[SDK] Ошибка инициализации игры! Код ошибки: 0x%08X\n", bufferData.header);
+          printf("[SDK] Ошибка инициализации игры! Код ошибки: 0x%08X\n", data.header);
           pseDeinitializeBuffers();
           return -1;
       }
@@ -111,17 +110,19 @@ int main() {
   
   // 2: Создание динамического меша (плоскости)
   {
-      PseBufferData bufferData{};
-      bufferData.header = PSE_COMMAND_DYNAMIC_MESH_CREATE;
+      PseData data{};
       
-      // Шаблон pse::BufferData::set<Смещение, Тип> красиво
-      // и безопасно упаковывает данные в сырые 60 байт полезной нагрузки.
-      // Никакого ручного сдвига байт — хелпер сам знает размеры типов.
+      // [Команда] Создать динамический меш
+      data.header = PSE_COMMAND_DYNAMIC_MESH_CREATE;
       
-      // [Смещение  0] Позиция, поворот и масштаб объекта на сцене.
-      // Занимает первые 40 байт полезной нагрузки.
-      pse::BufferData::set<0, PseTransform>(
-          bufferData, 
+      // Шаблон pse::Data::set<Смещение, Тип> красиво
+      // и безопасно упаковывает данные в сырые 60 байт полезной нагрузки
+      // Никакого ручного сдвига байт - хелпер сам знает размеры типов
+      
+      // [Смещение  0] Позиция, поворот и масштаб объекта на сцене
+      // Занимает первые 40 байт полезной нагрузки
+      pse::Data::set<0, PseTransform>(
+          data, 
           PseTransform{
               PseQuat{}, 
               PseVector3{-400.0f, -400.0f, -100.0f}, // Координаты X, Y, Z
@@ -130,22 +131,22 @@ int main() {
       );
       
       // [Смещение 40] Задаем геометрию меша
-      pse::BufferData::set<40, PseMesh>(bufferData, PSE_MESH_FACE);
+      pse::Data::set<40, PseMesh>(data, PSE_MESH_FACE);
       
       // [Смещение 42] Задаем материал (текстуру пола)
-      pse::BufferData::set<42, PseMaterial>(bufferData, PSE_MATERIAL_FLOOR_WHITE);
+      pse::Data::set<42, PseMaterial>(data, PSE_MATERIAL_FLOOR_WHITE);
       
       // [Смещение 44] Флаг видимости (Visibility). 1 - объект сразу отображается в игре
-      pse::BufferData::set<44, int8_t>(bufferData, 1);
+      pse::Data::set<44, int8_t>(data, 1);
       
       printf("[SDK] Отправляем команду на создание меша...\n");
       
       // Снова толкаем пакет в буфер и ждем ответа от игры
-      pseCommandBufferSinglePushAndWait(&bufferData);
+      pseCommandBufferSinglePushAndWait(&data);
       
-      if (bufferData.header != PSE_RESULT_SUCCESS)
+      if (data.header != PSE_RESULT_SUCCESS)
       {
-          printf("[SDK] Не удалось создать меш! Код ошибки: 0x%08X\n", bufferData.header);
+          printf("[SDK] Не удалось создать меш! Код ошибки: 0x%08X\n", data.header);
           pseDeinitializeBuffers();
           return -1;
       }
@@ -159,7 +160,7 @@ int main() {
 }
 ```
 
-###### P.S. Можно использовать и чистый C, просто нужно будет заменить шаблонные хелпер-функции `pse::BufferData::set` на `memcpy` аналоги и самому считать размер и смещения байт
+###### P.S. Можно использовать и чистый C, просто тогда нужно будет заменить шаблонные хелпер-функции `pse::Data::set` на `memcpy` аналоги и самому считать размер и смещения байт
 
 ## Что дальше?
 

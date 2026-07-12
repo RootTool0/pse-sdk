@@ -47,7 +47,7 @@ static void privateCommandBufferRawCopy(void* pExternalData, uint32_t absoluteIn
     }
 }
 
-PseBufferData* privateEventBufferRawAt(uint32_t absoluteIndex)
+PseData* privateEventBufferRawAt(uint32_t absoluteIndex)
 {
     return &gPseEventBuffer->buffer[absoluteIndex & (PSE_EVENT_BUFFER_SIZE - 1)];
 }
@@ -107,7 +107,7 @@ void pseCommandBufferSynchronize(void)
     }
 }
 
-uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData)
+uint32_t pseCommandBufferSinglePush(const PseData* pInData)
 {
     while(true)
     {
@@ -116,7 +116,7 @@ uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData)
 
         if(pse - game < PSE_COMMAND_BUFFER_SIZE)
         {
-            *pseCommandBufferRawAt(pse) = *pBufferData;
+            *pseCommandBufferRawAt(pse) = *pInData;
             privateAsAtomic(&gPseCommandBuffer->pseIndex)->store(pse + 1, std::memory_order_release);
             return pse;
         }
@@ -125,25 +125,25 @@ uint32_t pseCommandBufferSinglePush(const PseBufferData* pBufferData)
     }
 }
 
-void pseCommandBufferSingleWait(uint32_t absoluteIndex, PseBufferData* pOutBufferData)
+void pseCommandBufferSingleWait(uint32_t absoluteIndex, PseData* pOutData)
 {
     while(true)
     {
         uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
         
         if(game > absoluteIndex)
-            *pOutBufferData = *pseCommandBufferRawAt(absoluteIndex);
+            *pOutData = *pseCommandBufferRawAt(absoluteIndex);
         
         _mm_pause();
     }
 }
 
-void pseCommandBufferSinglePushAndWait(PseBufferData* pOutBufferData)
+void pseCommandBufferSinglePushAndWait(PseData* pOutData)
 {
-    pseCommandBufferSingleWait(pseCommandBufferSinglePush(pOutBufferData), pOutBufferData);
+    pseCommandBufferSingleWait(pseCommandBufferSinglePush(pOutData), pOutData);
 }
 
-uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t count)
+uint32_t pseCommandBufferBatchPush(const PseData* pInData, uint32_t count)
 {
     while(true)
     {
@@ -152,7 +152,7 @@ uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t co
             
         if(pse - game + count <= PSE_COMMAND_BUFFER_SIZE)
         {
-            privateCommandBufferRawCopy((void*)pBufferData, pse, count, true);
+            privateCommandBufferRawCopy((void*)pInData, pse, count, true);
             privateAsAtomic(&gPseCommandBuffer->pseIndex)->store(pse + count, std::memory_order_release);
             return pse;
         }
@@ -160,7 +160,7 @@ uint32_t pseCommandBufferBatchPush(const PseBufferData* pBufferData, uint32_t co
     }
 }
 
-void pseCommandBufferBatchWait(uint32_t absoluteIndex, PseBufferData* pBufferData, uint32_t count)
+void pseCommandBufferBatchWait(uint32_t absoluteIndex, PseData* pInData, uint32_t count)
 {
     if(count == 0) return;
         
@@ -169,19 +169,19 @@ void pseCommandBufferBatchWait(uint32_t absoluteIndex, PseBufferData* pBufferDat
         uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
         if((int32_t)(game - (absoluteIndex + count)) >= 0)
         {
-            privateCommandBufferRawCopy((void*)pBufferData, absoluteIndex, count, false);
+            privateCommandBufferRawCopy((void*)pInData, absoluteIndex, count, false);
             return;
         }
         _mm_pause();
     }
 }
 
-void pseCommandBufferBatchPushAndWait(PseBufferData* pBufferData, uint32_t count)
+void pseCommandBufferBatchPushAndWait(PseData* pInData, uint32_t count)
 {
-    pseCommandBufferBatchWait(pseCommandBufferBatchPush(pBufferData, count), pBufferData, count);
+    pseCommandBufferBatchWait(pseCommandBufferBatchPush(pInData, count), pInData, count);
 }
 
-PseBufferData* pseCommandBufferRawAt(uint32_t absoluteIndex)
+PseData* pseCommandBufferRawAt(uint32_t absoluteIndex)
 {
     return &gPseCommandBuffer->buffer[absoluteIndex & (PSE_COMMAND_BUFFER_SIZE - 1)];
 }
@@ -219,12 +219,12 @@ void pseCommandBufferRawCommitAndWait(uint32_t startAbsoluteIndex, uint32_t coun
 }
 
 // Event Buffer / Methods
-int32_t pseEventBufferTryGet(PseBufferData* pOutBufferData)
+int32_t pseEventBufferTryGet(PseData* pOutData)
 {
     uint32_t game = privateAsAtomic(&gPseEventBuffer->gameIndex)->load(std::memory_order_acquire);
     if((int32_t)(game - gPseEventBufferIndex) <= 0) return 0;
     
-    *pOutBufferData = *privateEventBufferRawAt(gPseEventBufferIndex);
+    *pOutData = *privateEventBufferRawAt(gPseEventBufferIndex);
     ++gPseEventBufferIndex;
     return 1;
 }

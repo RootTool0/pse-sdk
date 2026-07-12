@@ -29,6 +29,6 @@
 
 Подробное описание внутреннего устройства каждого компонента, логики работы **Lock-free** алгоритмов и **базовых типов данных** находится в соответствующих файлах спецификации:
 - Базовые типы данных: [Common](common.md)
-- Контейнер данных _(PseBufferData)_: [PseBufferData](PseBufferData.md)
+- Контейнер данных _(PseData)_: [PseData](PseData.md)
 - Командный буфер _(PseCommandBuffer)_: [PseCommandBuffer](PseCommandBuffer.md)
 - Событийный буфер _(PseEventBuffer)_: [PseEventBuffer](PseEventBuffer.md)

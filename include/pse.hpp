@@ -18,9 +18,9 @@ namespace pse
 			outRegister = (outRegister & ~(1 << inOffset)) | (static_cast<PseRegister>(inValue) << inOffset);
 		}
 		
-		bool getBit(const PseRegister InRegister, const uint8_t inOffset)
+		bool getBit(const PseRegister inRegister, const uint8_t inOffset)
 		{
-			return (InRegister & (1 << inOffset)) != 0;
+			return (inRegister & (1 << inOffset)) != 0;
 		}
 		
 		void updateBit(const bool& toRegister, PseRegister& outRegister, const uint8_t inOffset, bool& outValue)
@@ -31,12 +31,12 @@ namespace pse
 		
 		// Int
 		template<typename T>
-		T getInt(const PseRegister InRegister, const uint8_t inOffset)
+		T getInt(const PseRegister inRegister, const uint8_t inOffset)
 		{
 	        constexpr uint8_t BitSize = sizeof(T) * 8;
 			static_assert(sizeof(T) * 8 <= 32, "T is big!");
 	        constexpr uint32_t Mask = (BitSize == 32) ? 0xFFFFFFFF : ((1U << BitSize) - 1);
-			return static_cast<T>((InRegister >> inOffset) & Mask);
+			return static_cast<T>((inRegister >> inOffset) & Mask);
 		}
 		
 		template<typename T>
@@ -57,11 +57,11 @@ namespace pse
 		
 		// BitAs
 		template<typename T, uint8_t bitCount>
-		T getBitsAs(const PseRegister InRegister, const uint8_t inOffset)
+		T getBitsAs(const PseRegister inRegister, const uint8_t inOffset)
 		{
 			static_assert(bitCount > 0 && bitCount <= 32, "bitCount must be between 1 and 32!");
 	        constexpr uint32_t Mask = (bitCount == 32) ? 0xFFFFFFFF : ((1U << bitCount) - 1);
-			return static_cast<T>((static_cast<PseRegister>(InRegister) >> inOffset) & Mask);
+			return static_cast<T>((static_cast<PseRegister>(inRegister) >> inOffset) & Mask);
 		}
 		
 		template<typename T, uint8_t bitCount>
@@ -80,24 +80,24 @@ namespace pse
 		}
     }
 	
-/*
-    namespace BufferData
+    namespace Data
     {
-        template<uint8_t offset, typename T>
-        void set(PseBufferData& outBufferData, const T& inValue) 
+    	template<uint8_t offset, typename T>
+        void set(PseData& outData, const T& inValue)
         {
-            std::memcpy(&outBufferData.data[offset], &inValue, sizeof(T));
+        	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
+            std::memcpy(&outData.data[inOffset], &inValue, sizeof(T));
         }
         
-        template<uint8_t offset, typename T>
-        T get(const PseBufferData& inBufferData) 
+    	template<uint8_t offset, typename T>
+        T get(const PseData& inData)
         {
+        	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             T result;
-            std::memcpy(&result, &inBufferData.data[offset], sizeof(T));
+            std::memcpy(&result, &inData.data[inOffset], sizeof(T));
             return result;
         }
     }
-*/
 }
 
 #endif

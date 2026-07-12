@@ -42,19 +42,19 @@ void onButtonChanged(int8_t inState)
     static std::uniform_int_distribution<int> dist(-400, 400);
     
     {
-        PseBufferData bufferData{};
+        PseData data{};
         
         // [Команда] Переместить элемент (в нашем случае кнопку)
-        bufferData.header = PSE_COMMAND_ELEMENT_SET_TRANSFORM;
+        data.header = PSE_COMMAND_ELEMENT_SET_TRANSFORM;
         
         // [Смещение 0] Передаем GUID кнопки, которую мы хотим переместить
-        pse::BufferData::set<0, PseGUID>(bufferData, button);
+        pse::Data::set<0, PseGUID>(data, button);
         
         // [Смещение 8] Задаем новые случайные координаты X и Y (Z фиксируем на -100)
-        pse::BufferData::set<8, PseTransform>(bufferData, PseTransform{PseQuat{}, PseVector3{static_cast<float>(dist(gen)), static_cast<float>(dist(gen)), -100}, PseVector3{1, 1, 1}});
+        pse::Data::set<8, PseTransform>(data, PseTransform{PseQuat{}, PseVector3{static_cast<float>(dist(gen)), static_cast<float>(dist(gen)), -100}, PseVector3{1, 1, 1}});
         
         // Синхронно отправляем команду в игру и ждем завершения операции
-        pseCommandBufferSinglePushAndWait(&bufferData);
+        pseCommandBufferSinglePushAndWait(&data);
     }
 }
 
@@ -69,13 +69,13 @@ int main()
     
     // 2. Инициализируем игру
     {
-        PseBufferData bufferData{};
-        bufferData.header = PSE_COMMAND_GAME_INITIALIZE;
+        PseData data{};
+        data.header = PSE_COMMAND_GAME_INITIALIZE;
         
-        pseCommandBufferSinglePushAndWait(&bufferData);
-        if(bufferData.header != PSE_RESULT_SUCCESS)
+        pseCommandBufferSinglePushAndWait(&data);
+        if(data.header != PSE_RESULT_SUCCESS)
         {
-            printf("[SDK] Failed to initialize game! Error: 0x%08X\n", bufferData.header);
+            printf("[SDK] Failed to initialize game! Error: 0x%08X\n", data.header);
             return -1;
         }
     }
@@ -85,25 +85,25 @@ int main()
     for(int x = 0; x < 5; ++x)
         for(int y = 0; y < 5; ++y)
         {
-            PseBufferData bufferData{};
+            PseData data{};
             
             // [Команда] Создаем динамический меш
-            bufferData.header = PSE_COMMAND_DYNAMIC_MESH_CREATE;
+            data.header = PSE_COMMAND_DYNAMIC_MESH_CREATE;
             
             // [Смещение  0] Высчитываем сетку координат трансформа для каждого полигона
-            pse::BufferData::set< 0, PseTransform>(bufferData, PseTransform{PseQuat{}, PseVector3{static_cast<float>(x) * 200 - 400, static_cast<float>(y) * 200 - 400, -100}, PseVector3{1, 1, 1}});
+            pse::Data::set< 0, PseTransform>(data, PseTransform{PseQuat{}, PseVector3{static_cast<float>(x) * 200 - 400, static_cast<float>(y) * 200 - 400, -100}, PseVector3{1, 1, 1}});
             
             // [Смещение 40] Указываем тип меша
-            pse::BufferData::set<40, PseMesh>(bufferData, PSE_MESH_FACE);
+            pse::Data::set<40, PseMesh>(data, PSE_MESH_FACE);
             
             // [Смещение 42] Чередуем материалы в шахматном порядке
-            pse::BufferData::set<42, PseMaterial>(bufferData, (x + y) % 2 == 0 ? PSE_MATERIAL_FLOOR_WHITE : PSE_MATERIAL_FLOOR_BLACK);
+            pse::Data::set<42, PseMaterial>(data, (x + y) % 2 == 0 ? PSE_MATERIAL_FLOOR_WHITE : PSE_MATERIAL_FLOOR_BLACK);
             
             // [Смещение 44] Флаг видимости (Visibility)
-            pse::BufferData::set<44, int8_t>(bufferData, 1);
+            pse::Data::set<44, int8_t>(data, 1);
             
             // Быстро проталкиваем в очередь без ожидания ответа (SinglePush)
-            pseCommandBufferSinglePush(&bufferData);
+            pseCommandBufferSinglePush(&data);
         }
     
     // Блокируем поток и ждем, пока игра полностью обработает ВСЮ пачку из 25 созданных мешей. Только после этого наш код пойдет дальше
@@ -111,57 +111,57 @@ int main()
     
     // 4. Создаем кнопку на координатах (200, 200, -100)
     {
-        PseBufferData bufferData{};
+        PseData data{};
         
         // [Команда] Создать элемент (в нашем случае кнопку)
-        bufferData.header = PSE_COMMAND_ELEMENT_CREATE;
+        data.header = PSE_COMMAND_ELEMENT_CREATE;
         
         // [Смещение  0] Задаем координаты кнопки
-        pse::BufferData::set< 0, PseTransform>(bufferData, PseTransform{PseQuat{}, PseVector3{200, 200, -100}, PseVector3{1, 1, 1}});
+        pse::Data::set< 0, PseTransform>(data, PseTransform{PseQuat{}, PseVector3{200, 200, -100}, PseVector3{1, 1, 1}});
         
         // [Смещение 40] Выставляем класс элемента - кнопка
-        pse::BufferData::set<40, PseClass>(bufferData, PSE_CLASS_BUTTON);
+        pse::Data::set<40, PseClass>(data, PSE_CLASS_BUTTON);
         
         // [Смещение 42] ВАЖНО: Приводим адрес нашей функции-обработчика к uint64_t и пакуем по смещению 42. SDK слепо доставит это число в игру, а игра просто сохранит его как число
-        pse::BufferData::set<42, uint64_t>(bufferData, (uint64_t)&onButtonChanged);
+        pse::Data::set<42, uint64_t>(data, (uint64_t)&onButtonChanged);
         
         // [Смещение 50] Начальное состояние кнопки - 0
-        pse::BufferData::set<50, int8_t>(bufferData, 0);
+        pse::Data::set<50, int8_t>(data, 0);
         
         // [Смещение 51] Флаг видимости (Visibility)
-        pse::BufferData::set<51, int8_t>(bufferData, 1);
+        pse::Data::set<51, int8_t>(data, 1);
         
         // Отправляем и жестко ждем ответа, так как нам жизненно необходим GUID созданной кнопки
-        pseCommandBufferSinglePushAndWait(&bufferData);
+        pseCommandBufferSinglePushAndWait(&data);
         
         // Игра перезаписала буфер и положила сгенерированный GUID по смещению 0
-        button = pse::BufferData::get<0, PseGUID>(bufferData);
+        button = pse::Data::get<0, PseGUID>(data);
     }
     printf("[SDK] Интерактивная кнопка успешно зарегистрирована в игре\n");
     
     {
-        PseBufferData bufferData{};
+        PseData data{};
         
         // [Команда] Создать элемент (в нашем случае кубик)
-        bufferData.header = PSE_COMMAND_ELEMENT_CREATE;
+        data.header = PSE_COMMAND_ELEMENT_CREATE;
         
         // [Смещение  0] Задаем координаты кубика
-        pse::BufferData::set< 0, PseTransform>(bufferData, PseTransform{PseQuat{}, PseVector3{100, -100, 0}, PseVector3{1, 1, 1}});
+        pse::Data::set< 0, PseTransform>(data, PseTransform{PseQuat{}, PseVector3{100, -100, 0}, PseVector3{1, 1, 1}});
         
         // [Смещение 40] Выставляем класс элемента - кубик
-        pse::BufferData::set<40, PseClass>(bufferData, PSE_CLASS_WEIGHT_CUBE);
+        pse::Data::set<40, PseClass>(data, PSE_CLASS_WEIGHT_CUBE);
         
         // [Смещение 42] Нет Callback (0)
-        pse::BufferData::set<42, uint64_t>(bufferData, 0);
+        pse::Data::set<42, uint64_t>(data, 0);
         
         // [Смещение 50] Начальное состояние кубика - 0
-        pse::BufferData::set<50, int8_t>(bufferData, 0);
+        pse::Data::set<50, int8_t>(data, 0);
         
         // [Смещение 51] Флаг видимости (Visibility)
-        pse::BufferData::set<51, int8_t>(bufferData, 1);
+        pse::Data::set<51, int8_t>(data, 1);
         
         // Отправляем в игру и ждем ответа
-        pseCommandBufferSinglePushAndWait(&bufferData);
+        pseCommandBufferSinglePushAndWait(&data);
     }
     printf("[SDK] Кубик создан\n");
     
@@ -169,19 +169,19 @@ int main()
     printf("[SDK] Вход в цикл опроса событий. Ожидаем действий в Portal: Solver...\n");
     while(true)
     {
-        PseBufferData bufferData{};
+        PseData data{};
         
         // Неблокирующий TryGet: если игра выставила событие, забираем его, иначе идем дальше
-        if(pseEventBufferTryGet(&bufferData) != 0)
+        if(pseEventBufferTryGet(&data) != 0)
         {
             // Нам интересно только событие изменения состояния элементов
-            if(bufferData.header == PSE_EVENT_ELEMENT_CHANGED)
+            if(data.header == PSE_EVENT_ELEMENT_CHANGED)
             {
                 // Извлекаем адрес коллбэка, прилетевший от игры
-                uint64_t callback = pse::BufferData::get<8, uint64_t>(bufferData);
+                uint64_t callback = pse::Data::get<8, uint64_t>(data);
                 
                 // Извлекаем новое состояние элемента (например нажат/отпущен)
-                int8_t state = pse::BufferData::get<16, int8_t>(bufferData);
+                int8_t state = pse::Data::get<16, int8_t>(data);
                 
                 // Если адрес не нулевой, восстанавливаем сигнатуру функции и вызываем её
                 if(callback != 0) 

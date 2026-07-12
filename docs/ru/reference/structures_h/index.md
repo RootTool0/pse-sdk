@@ -5,7 +5,7 @@
 <br>
 
 - [Common](common.md)
-- [PseBufferData](PseBufferData.md)
+- [PseData](PseData.md)
 - [PseCommandBuffer](PseCommandBuffer.md)
 - [PseEventBuffer](PseEventBuffer.md)
 - [PseBuffers](PseBuffers.md)

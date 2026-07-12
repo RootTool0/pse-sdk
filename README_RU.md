@@ -2,13 +2,9 @@
 
 **[[EN]](README.md)** | **[RU]**
 
----
-
 **Portal Solver Editor (PSE) SDK** - Официальный набор инструментов _(SDK)_ для программной работы с внутренним редактором в игре **Portal: Solver**
 
 Библиотека предоставляет программный интерфейс _(C API)_ для двустороннего обмена данными в реальном времени, позволяя создавать **внешние редакторы уровней**, **инструменты автоматизации**, **плагины**, **необычные кастомные уровни** и **утилиты**, работающие синхронно с запущенной игрой в реальном времени
-
----
 
 ## Биндинги
 
@@ -20,8 +16,6 @@ _(все они лично проверены мной - правильно ис
 
 - **Python:** **[pse-sdk-python](https://github.com/RootTool0/pse-sdk-python)** by [RootTool](https://github.com/RootTool0)
 
----
-
 ## Структура проекта
 
 - `include/` - Заголовочные файлы интерфейса _(pse.h, enums.h, structures.h, pse.hpp)_
@@ -29,20 +23,16 @@ _(все они лично проверены мной - правильно ис
 - `examples/` - Компилируемые примеры использования различных режимов **PSE SDK**
 - `docs/` - Техническая и концептуальная документация проекта
 
----
-
 ## Документация
 
 Подробное описание архитектуры, спецификация элементов и руководства по работе находятся в разделе **[Документация](docs/ru/pse_sdk.md)**
-
----
 
 ## Пример кода
 
 Базовый сценарий инициализации сессии и отправки команды на создание динамического меша с блокированием потока до получения ответа от игры
 
 ```cpp
-#include "pse.h
+#include "pse.h"
 #include "pse.hpp"
 
 int main() {
@@ -52,25 +42,23 @@ int main() {
     }
     
     // Создаем команду
-    PseBufferData bufferData{};
-    bufferData.header = PSE_COMMAND_DYNAMIC_MESH_CREATE; // Команда - создать динамический меш
+    PseData data{};
+    data.header = PSE_COMMAND_DYNAMIC_MESH_CREATE; // Команда - создать динамический меш
     
     // Упаковка параметров по фиксированным байтовым смещениям
-    PseUtilities::BufferData::set< 0, PseTransform>(bufferData, PseTransform{PseQuat{}, PseVector3{0, 0, 0}, PseVector3{1, 1, 1}});
-    PseUtilities::BufferData::set<40, PseMesh>(bufferData, PSE_MESH_FACE);
-    PseUtilities::BufferData::set<42, PseMaterial>(bufferData, PSE_MATERIAL_FLOOR_WHITE);
-    PseUtilities::BufferData::set<44, int8_t>(bufferData, 1); // Visibility
+    pse::Data::set< 0, PseTransform>(data, PseTransform{PseQuat{}, PseVector3{0, 0, 0}, PseVector3{1, 1, 1}});
+    pse::Data::set<40, PseMesh>(data, PSE_MESH_FACE);
+    pse::Data::set<42, PseMaterial>(data, PSE_MATERIAL_FLOOR_WHITE);
+    pse::Data::set<44, int8_t>(data, 1); // Visibility
     
     // Отправка пакета в кольцевой буфер и ожидание результата выполнения
-    pseCommandBufferSinglePushAndWait(&bufferData);
+    pseCommandBufferSinglePushAndWait(&data);
     
     // Освобождение ресурсов разделяемой памяти
     pseDeinitializeBuffers();
     return 0;
 }
 ```
-
----
 
 ## Сборка из исходников _(Получение DLL / Библиотеки)_
 
@@ -89,8 +77,6 @@ cmake --install build --config Release
 ```
 
 После выполнения этих команд в корне проекта появится папка `dist/`, готовая к интеграции в **ваши проекты** или **биндинги**
-
----
 
 ## Ссылки и обратная связь
 

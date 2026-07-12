@@ -21,18 +21,18 @@ typedef struct alignas(64)
 {
     uint32_t header;
     uint8_t data[60];
-} PseBufferData;
+} PseData;
 
 typedef struct alignas(64)
 {
-    alignas(64) PseBufferData buffer[PSE_COMMAND_BUFFER_SIZE];
+    alignas(64) PseData buffer[PSE_COMMAND_BUFFER_SIZE];
     alignas(64) uint32_t pseIndex;
     alignas(64) uint32_t gameIndex;
 } PseCommandBuffer;
 
 typedef struct alignas(64)
 {
-    alignas(64) PseBufferData buffer[PSE_EVENT_BUFFER_SIZE];
+    alignas(64) PseData buffer[PSE_EVENT_BUFFER_SIZE];
     alignas(64) uint32_t gameIndex;
 } PseEventBuffer;
 

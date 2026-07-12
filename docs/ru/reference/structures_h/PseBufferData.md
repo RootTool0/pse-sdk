@@ -1,6 +1,6 @@
 <img src="../../../assets/portal_solver_logo.png" width="60m" align="left" alt="Portal Solver Logo">
 
-## [Portal Solver Editor SDK](../../pse_sdk.md) > [Reference](../index.md) > [Structures.h](index.md) > [PseBufferData]()
+## [Portal Solver Editor SDK](../../pse_sdk.md) > [Reference](../index.md) > [Structures.h](index.md) > [PseData]()
 
 <br>
 
@@ -22,6 +22,6 @@
 | Сигнатура                  | Тип возвращаемого значения  | Аргументы                                         | Описание                                                                                                         |
 |----------------------------|-----------------------------|---------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | **get<offset, T>()**       | `T`                         | `uint8_t offset`, `typename T`                    | Чтение значения типа `T` по **compile-time** смещению _(смещение считается от `data`)_                           |
-| **set<offset, T>(inData)** | `PseBufferData&`            | `uint8_t offset`, `typename T`, `const T& inData` | Запись в `inData` по **compile-time** смещению с поддержкой **цепочки вызовов** _(смещение считается от `data`)_ |
+| **set<offset, T>(inData)** | `PseData&`            | `uint8_t offset`, `typename T`, `const T& inData` | Запись в `inData` по **compile-time** смещению с поддержкой **цепочки вызовов** _(смещение считается от `data`)_ |
 | **get<T>(offset)**         | `T`                         | `typename T`, `uint8_t offset`                    | Чтение значения типа `T` по **runtime** смещению _(смещение считается от `data`)_                                |
-| **set<T>(offset, inData)** | `PseBufferData&`            | `typename T`, `uint8_t offset`, `const T& inData` | Запись в `inData` по **runtime** смещению с поддержкой **цепочки вызовов** _(смещение считается от `data`)_      |
+| **set<T>(offset, inData)** | `PseData&`            | `typename T`, `uint8_t offset`, `const T& inData` | Запись в `inData` по **runtime** смещению с поддержкой **цепочки вызовов** _(смещение считается от `data`)_      |
