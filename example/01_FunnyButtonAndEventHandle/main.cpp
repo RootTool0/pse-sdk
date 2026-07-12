@@ -34,7 +34,7 @@ PseGUID button;
  * Кастомный обработчик (Callback), который будет вызываться при изменении состояния кнопки
  * Адрес этой функции увозится в игру, а при нажатии кнопки - возвращается нам в событии
  */
-void onButtonChanged(int8_t inState)
+void onButtonChanged(PseState inState)
 {
     printf("[Callback] Новое состояние кнопки! state = %i\n", inState);
     
@@ -122,11 +122,11 @@ int main()
         // [Смещение 40] Выставляем класс элемента - кнопка
         pse::Data::set<40, PseClass>(data, PSE_CLASS_BUTTON);
         
-        // [Смещение 42] ВАЖНО: Приводим адрес нашей функции-обработчика к uint64_t и пакуем по смещению 42. SDK слепо доставит это число в игру, а игра просто сохранит его как число
-        pse::Data::set<42, uint64_t>(data, (uint64_t)&onButtonChanged);
+        // [Смещение 42] ВАЖНО: Приводим адрес нашей функции-обработчика к PseCallback и пакуем по смещению 42. SDK слепо доставит это число в игру, а игра просто сохранит его как число
+        pse::Data::set<42, PseCallback>(data, (PseCallback)&onButtonChanged);
         
         // [Смещение 50] Начальное состояние кнопки - 0
-        pse::Data::set<50, int8_t>(data, 0);
+        pse::Data::set<50, PseState>(data, 0);
         
         // [Смещение 51] Флаг видимости (Visibility)
         pse::Data::set<51, int8_t>(data, 1);
@@ -152,10 +152,10 @@ int main()
         pse::Data::set<40, PseClass>(data, PSE_CLASS_WEIGHT_CUBE);
         
         // [Смещение 42] Нет Callback (0)
-        pse::Data::set<42, uint64_t>(data, 0);
+        pse::Data::set<42, PseCallback>(data, 0);
         
         // [Смещение 50] Начальное состояние кубика - 0
-        pse::Data::set<50, int8_t>(data, 0);
+        pse::Data::set<50, PseState>(data, 0);
         
         // [Смещение 51] Флаг видимости (Visibility)
         pse::Data::set<51, int8_t>(data, 1);
@@ -178,15 +178,15 @@ int main()
             if(data.header == PSE_EVENT_ELEMENT_CHANGED)
             {
                 // Извлекаем адрес коллбэка, прилетевший от игры
-                uint64_t callback = pse::Data::get<8, uint64_t>(data);
+                PseCallback callback = pse::Data::get<8, PseCallback>(data);
                 
                 // Извлекаем новое состояние элемента (например нажат/отпущен)
-                int8_t state = pse::Data::get<16, int8_t>(data);
+                PseState state = pse::Data::get<16, PseState>(data);
                 
                 // Если адрес не нулевой, восстанавливаем сигнатуру функции и вызываем её
                 if(callback != 0) 
                 {
-                    reinterpret_cast<void(*)(int8_t)>(callback)(state);
+                    reinterpret_cast<void(*)(PseState)>(callback)(state);
                 }
             }
         }

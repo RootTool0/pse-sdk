@@ -4,7 +4,10 @@
 
 <br>
 
-## C++ Справочник удобных утилит
+## pse::
+
+**C++** Справочник удобных утилит для **PSE SDK**
 
 - [Register](Register.md)
 - [Data](Data.md)
+- [Events](Events.md)

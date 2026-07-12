@@ -13,17 +13,17 @@ namespace pse
     namespace Register 
     {
 		// Bit
-		void setBit(PseRegister& outRegister, const uint8_t inOffset, const bool inValue)
+		inline void setBit(PseRegister& outRegister, const uint8_t inOffset, const bool inValue)
 		{
 			outRegister = (outRegister & ~(1 << inOffset)) | (static_cast<PseRegister>(inValue) << inOffset);
 		}
 		
-		bool getBit(const PseRegister inRegister, const uint8_t inOffset)
+		inline bool getBit(const PseRegister inRegister, const uint8_t inOffset)
 		{
 			return (inRegister & (1 << inOffset)) != 0;
 		}
 		
-		void updateBit(const bool& toRegister, PseRegister& outRegister, const uint8_t inOffset, bool& outValue)
+		inline void updateBit(const bool toRegister, PseRegister& outRegister, const uint8_t inOffset, bool& outValue)
 		{
 			if(toRegister) setBit(outRegister, inOffset, outValue);
 			else outValue = getBit(outRegister, inOffset);
@@ -49,7 +49,7 @@ namespace pse
 		}
 		
 		template<typename T, typename Q>
-		void updateInt(const bool& toRegister, PseRegister& outRegister, const uint8_t inOffset, Q& outValue)
+		void updateInt(const bool toRegister, PseRegister& outRegister, const uint8_t inOffset, Q& outValue)
 		{
 			if(toRegister) setInt<T>(outRegister, inOffset, static_cast<T>(outValue));
 			else outValue = static_cast<Q>(getInt<T>(outRegister, inOffset));
@@ -73,7 +73,7 @@ namespace pse
 		}
 		
 		template<typename T, uint8_t bitCount, typename Q>
-		void updateBitsAs(const bool& toRegister, PseRegister& outRegister, const uint8_t inOffset, Q& outValue)
+		void updateBitsAs(const bool toRegister, PseRegister& outRegister, const uint8_t inOffset, Q& outValue)
 		{
 			if(toRegister) setBitsAs<T, bitCount>(outRegister, inOffset, static_cast<T>(outValue));
 			else outValue = static_cast<Q>(getBitsAs<T, bitCount>(outRegister, inOffset));
@@ -83,14 +83,14 @@ namespace pse
     namespace Data
     {
     	template<uint8_t offset, typename T>
-        void set(PseData& outData, const T& inValue)
+        inline void set(PseData& outData, const T& inValue)
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             std::memcpy(&outData.data[inOffset], &inValue, sizeof(T));
         }
         
     	template<uint8_t offset, typename T>
-        T get(const PseData& inData)
+        inline T get(const PseData& inData)
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             T result;
@@ -98,6 +98,45 @@ namespace pse
             return result;
         }
     }
+	
+    namespace Events
+    {
+		//  1 - Событие успешно извлечено и обработано встроенным колбэком
+        //  0 - Событие извлечено, но не распознано SDK (отдано пользователю в outData)
+        // -1 - Буфер событий пуст
+        inline int32_t poll(PseData& outData)
+        {
+            PseData data{};
+            
+            if(pseEventBufferTryGet(&data) == 0)
+				return -1;
+            
+			switch(data.header)
+			{
+			default: break;
+			case PSE_EVENT_ELEMENT_CHANGED:
+			    {
+                    PseCallback callback = pse::Data::get<8, PseCallback>(data);
+                    if(callback == 0) return false;
+					
+                    PseState state = pse::Data::get<16, PseState>(data);
+                    auto pfnCallback = reinterpret_cast<void(*)(PseState)>(callback);
+                    pfnCallback(state);
+					
+                    return 1;
+                }
+				break;
+			}
+			
+            return 0;
+        }
+		
+        inline int32_t poll()
+        {
+            PseData data{};
+            return pollEvent(data);
+        }
+	}
 }
 
 #endif

@@ -10,6 +10,8 @@
 
 typedef uint64_t PseGUID;
 typedef uint32_t PseRegister;
+typedef int8_t PseState;
+typedef uint64_t PseCallback;
 
 typedef struct { float x, y; } PseVector2;
 typedef struct { float x, y, z; } PseVector3;
