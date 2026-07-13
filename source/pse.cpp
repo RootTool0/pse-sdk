@@ -74,6 +74,8 @@ int32_t pseInitializeBuffers(void)
     gPseBuffers = static_cast<PseBuffers*>(pBuffers);
     gPseCommandBuffer = &gPseBuffers->commandBuffer;
     gPseEventBuffer = &gPseBuffers->eventBuffer;
+    
+    memset(pBuffers, 0, sizeof(PseBuffers));
     gPseEventBufferIndex = 0;
     
     return 0;
@@ -113,7 +115,7 @@ uint32_t pseCommandBufferSinglePush(const PseData* pInData)
     {
         uint32_t pse = privateAsAtomic(&gPseCommandBuffer->pseIndex)->load(std::memory_order_relaxed);
         uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
-
+        
         if(pse - game < PSE_COMMAND_BUFFER_SIZE)
         {
             *pseCommandBufferRawAt(pse) = *pInData;
@@ -132,7 +134,10 @@ void pseCommandBufferSingleWait(uint32_t absoluteIndex, PseData* pOutData)
         uint32_t game = privateAsAtomic(&gPseCommandBuffer->gameIndex)->load(std::memory_order_acquire);
         
         if(game > absoluteIndex)
+        {
             *pOutData = *pseCommandBufferRawAt(absoluteIndex);
+            return;
+        }
         
         _mm_pause();
     }
@@ -228,3 +233,4 @@ int32_t pseEventBufferTryGet(PseData* pOutData)
     ++gPseEventBufferIndex;
     return 1;
 }
+

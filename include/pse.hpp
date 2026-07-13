@@ -87,7 +87,7 @@ namespace pse
         inline void set(PseData& outData, const T& inValue)
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
-            std::memcpy(&outData.data[inOffset], &inValue, sizeof(T));
+            std::memcpy(&outData.data[offset], &inValue, sizeof(T));
         }
         
     	template<uint8_t offset, typename T>
@@ -95,7 +95,7 @@ namespace pse
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             T result;
-            std::memcpy(&result, &inData.data[inOffset], sizeof(T));
+            std::memcpy(&result, &inData.data[offset], sizeof(T));
             return result;
         }
     }
@@ -135,7 +135,7 @@ namespace pse
         inline int32_t poll()
         {
             PseData data{};
-            return pollEvent(data);
+            return poll(data);
         }
 	}
 }
