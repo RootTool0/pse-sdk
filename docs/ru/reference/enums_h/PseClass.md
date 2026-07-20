@@ -17,7 +17,7 @@
 |   **0x0008**   | PSE_CLASS_LASER_TX                 | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_TX.png)                 |
 |   **0x0009**   | PSE_CLASS_LASER_RX                 | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_RX.png)                 |
 |   **0x000A**   | PSE_CLASS_LASER_RELAY              | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_RELAY.png)              |
-|   **0x000B**   | PSE_CLASS_LASER_PLANE              | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_PLANE.png)              |
+|   **0x000B**   | PSE_CLASS_LASER_PANEL              | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_PANEL.png)              |
 |   **0x000C**   | PSE_CLASS_LASER_CUBE               | ![](../../../assets/enums_h/class/PSE_CLASS_LASER_CUBE.png)               |
 |   **0x000D**   | PSE_CLASS_WEIGHT_CUBE              | ![](../../../assets/enums_h/class/PSE_CLASS_WEIGHT_CUBE.png)              |
 |   **0x000E**   | PSE_CLASS_FAITH_PLATE              | ![](../../../assets/enums_h/class/PSE_CLASS_FAITH_PLATE.png)              |

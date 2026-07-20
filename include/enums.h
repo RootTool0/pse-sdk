@@ -138,6 +138,9 @@ enum PseMaterial : uint16_t
 	
 	PSE_MATERIAL_WINDOW_METAL_GRID           = 0x000A,
 	PSE_MATERIAL_WINDOW_GLASS_METAL_GRID     = 0x000B,
+	
+	PSE_MATERIAL_WALL_YELLOW_1_0             = 0x000C,
+	PSE_MATERIAL_WALL_YELLOW_1_5             = 0x000D,
 };
 
 enum PseClass : uint16_t

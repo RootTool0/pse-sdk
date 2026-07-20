@@ -1,1 +1,4 @@
 .idea
+/build
+/dist
+/example/01_FunnyButtonAndEventHandle/Build
