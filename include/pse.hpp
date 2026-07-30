@@ -84,14 +84,14 @@ namespace pse
     namespace Data
     {
     	template<uint8_t offset, typename T>
-        inline void set(PseData& outData, const T& inValue)
+        void set(PseData& outData, const T& inValue)
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             std::memcpy(&outData.data[offset], &inValue, sizeof(T));
         }
         
     	template<uint8_t offset, typename T>
-        inline T get(const PseData& inData)
+        T get(const PseData& inData)
         {
         	static_assert(offset + sizeof(T) <= 60, "offset + sizeof(T) must be between 0 and 60!");
             T result;
