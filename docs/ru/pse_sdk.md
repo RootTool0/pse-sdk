@@ -28,6 +28,8 @@
   - [Pse.hpp](reference/pse_hpp/index.md)
     - [Register](reference/pse_hpp/Register.md)
     - [Data](reference/pse_hpp/Data.md)
+    - [Events](reference/pse_hpp/Events.md)
+    - [Quat](reference/pse_hpp/Quat.md)
 - [Concept](concept/index.md)
   - [Elements](concept/elements.md)
 

@@ -7,7 +7,7 @@
 #include <cstring>
 #include <stdint.h>
 
-#include "pse/pse.h" 
+#include "pse/pse.h"
 
 namespace pse
 {
@@ -138,6 +138,39 @@ namespace pse
             return poll(data);
         }
 	}
+	
+    namespace Quat
+    {
+    	inline PseQuat fromRadians(const float pitch, const float yaw, const float roll)
+    	{
+    		const float pitchHalf = pitch * 0.5f;
+    		const float yawHalf   = yaw   * 0.5f;
+    		const float rollHalf  = roll  * 0.5f;
+    		
+    		const float sp = std::sin(pitchHalf);
+    		const float cp = std::cos(pitchHalf);
+    		
+    		const float sy = std::sin(yawHalf);
+    		const float cy = std::cos(yawHalf);
+    		
+    		const float sr = std::sin(rollHalf);
+    		const float cr = std::cos(rollHalf);
+    		
+    		PseQuat quat{};
+    		quat.x = cr * sp * sy + sr * cp * cy;
+    		quat.y = cr * sp * cy - sr * cp * sy;
+    		quat.z = cr * cp * sy - sr * sp * cy;
+    		quat.w = cr * cp * cy + sr * sp * sy;
+    		
+    		return quat;
+    	}
+    	
+    	inline PseQuat fromDegrees(const float pitch, const float yaw, const float roll)
+    	{
+    		constexpr float degreesToRadians = 3.14159265358979323846f / 180.0f;
+    		return fromRadians(pitch * degreesToRadians, yaw * degreesToRadians, roll * degreesToRadians);
+    	}
+    }
 }
 
 #endif
