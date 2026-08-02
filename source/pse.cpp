@@ -61,8 +61,13 @@ inline std::atomic<uint32_t>* privateAsAtomic(uint32_t* pVariable)
 int32_t pseInitializeBuffers(void)
 {
     gPseSharedMemoryHandle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, "Global\\PortalSolverEditorSDK");
-    if(!gPseSharedMemoryHandle) return -1; // Could not open file mapping object
-	
+    if(!gPseSharedMemoryHandle)
+    {
+        // 0.2 fix: Global -> Local. Working for Backward Compatibility
+        gPseSharedMemoryHandle = OpenFileMappingA(FILE_MAP_ALL_ACCESS, FALSE, "Local\\PortalSolverEditorSDK");
+        if(!gPseSharedMemoryHandle) return -1; // Could not open file mapping object
+    }
+    
     void* pBuffers = MapViewOfFile(gPseSharedMemoryHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(PseBuffers));
     if(!pBuffers)
     {
