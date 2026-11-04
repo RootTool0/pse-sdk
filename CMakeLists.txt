@@ -40,6 +40,6 @@ install(FILES
 )
 
 # Call:
-# mkdir build
-# cd build
-# cmake -DCMAKE_INSTALL_PREFIX="../dist" ..
+# cmake -B build -DCMAKE_INSTALL_PREFIX="dist"
+# cmake --build build --config Release
+# cmake --install build --config Release
