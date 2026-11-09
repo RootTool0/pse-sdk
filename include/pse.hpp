@@ -102,25 +102,23 @@ namespace pse
 	
     namespace Events
     {
-		//  1 - Событие успешно извлечено и обработано встроенным колбэком
-        //  0 - Событие извлечено, но не распознано SDK (отдано пользователю в outData)
-        // -1 - Буфер событий пуст
+		//  1 - The event was successfully retrieved and processed by the built-in callback
+        //  0 - The event was retrieved, but not recognized by the SDK (given to the user in outData)
+        // -1 - Event buffer is empty
         inline int32_t poll(PseData& outData)
         {
-            PseData data{};
-            
-            if(pseEventBufferTryGet(&data) == 0)
+            if(pseEventBufferTryGet(&outData) == 0)
 				return -1;
             
-			switch(data.header)
+			switch(outData.header)
 			{
 			default: break;
 			case PSE_EVENT_ELEMENT_CHANGED:
 			    {
-                    PseCallback callback = pse::Data::get<8, PseCallback>(data);
+                    PseCallback callback = pse::Data::get<8, PseCallback>(outData);
                     if(callback == 0) return false;
 					
-                    PseState state = pse::Data::get<16, PseState>(data);
+                    PseState state = pse::Data::get<16, PseState>(outData);
                     auto pfnCallback = reinterpret_cast<void(*)(PseState)>(callback);
                     pfnCallback(state);
 					
