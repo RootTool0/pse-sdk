@@ -159,7 +159,7 @@ enum PseClass : uint16_t
 	PSE_CLASS_LASER_TX                 = 0x0008,
 	PSE_CLASS_LASER_RX                 = 0x0009,
 	PSE_CLASS_LASER_RELAY              = 0x000A,
-	PSE_CLASS_LASER_PLANE              = 0x000B,
+	PSE_CLASS_LASER_PANEL              = 0x000B,
 	
 	PSE_CLASS_LASER_CUBE               = 0x000C,
 	PSE_CLASS_WEIGHT_CUBE              = 0x000D,
